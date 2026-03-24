@@ -21,16 +21,16 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0f1219;
-  color: #e5e7eb;
+  background-color: #f9fafb;
+  color: #1f2937;
 }
 
 input,
 select,
 textarea {
-  background-color: #2d2e4a;
-  color: #e5e7eb;
-  border-color: #4b4d63;
+  background-color: #f9fafb;
+  color: #1f2937;
+  border-color: #d1d5db;
 }
 
 input::placeholder,
@@ -41,9 +41,9 @@ textarea::placeholder {
 input:focus,
 select:focus,
 textarea:focus {
-  background-color: #2d2e4a;
-  border-color: #6b7280;
-  color: #e5e7eb;
+  background-color: #ffffff;
+  border-color: #C9A96E;
+  color: #1f2937;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+  box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.15);
 }

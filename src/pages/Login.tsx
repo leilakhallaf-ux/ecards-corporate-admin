@@ -53,22 +53,22 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-navy-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-navy-800 rounded-lg shadow-lg p-8 border border-gray-700">
-          <h1 className="text-3xl font-bold text-white mb-2 text-center">
+        <div className="bg-navy-800 rounded-lg shadow-lg p-8 border border-gray-200">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">
             E-Cards Admin
           </h1>
-          <p className="text-gray-400 text-center mb-8">Panneau d'administration</p>
+          <p className="text-gray-500 text-center mb-8">Panneau d'administration</p>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-900/20 border border-red-700 rounded-lg flex items-start gap-3">
-              <AlertCircle size={20} className="text-red-500 mt-0.5 flex-shrink-0" />
-              <p className="text-red-400 text-sm">{error}</p>
+            <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg flex items-start gap-3">
+              <AlertCircle size={20} className="text-red-600 mt-0.5 flex-shrink-0" />
+              <p className="text-red-600 text-sm">{error}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-600 mb-2">
                 Adresse e-mail
               </label>
               <div className="relative">
@@ -78,14 +78,14 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-gold focus:ring-1 focus:ring-gold"
                   placeholder="admin@example.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-600 mb-2">
                 Mot de passe
               </label>
               <div className="relative">
@@ -95,7 +95,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-gold focus:ring-1 focus:ring-gold"
                   placeholder="••••••••"
                 />
               </div>
@@ -104,13 +104,13 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              className="w-full bg-gold hover:bg-gold-strong disabled:bg-gray-300 text-white font-medium py-2 px-4 rounded-lg transition-colors"
             >
               {loading ? 'Connexion en cours...' : 'Se connecter'}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-gray-400 text-sm">
+          <p className="mt-6 text-center text-gray-500 text-sm">
             Accès réservé aux administrateurs
           </p>
         </div>

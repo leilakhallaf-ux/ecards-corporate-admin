@@ -157,25 +157,25 @@ export default function Translations() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="text-gray-400">Chargement...</div>
+        <div className="text-gray-500">Chargement...</div>
       </div>
     )
   }
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white mb-8">Traductions</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Traductions</h1>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-900/20 border border-red-700 rounded-lg flex items-start gap-3">
-          <AlertCircle size={20} className="text-red-500 mt-0.5 flex-shrink-0" />
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg flex items-start gap-3">
+          <AlertCircle size={20} className="text-red-600 mt-0.5 flex-shrink-0" />
+          <p className="text-red-600 text-sm">{error}</p>
         </div>
       )}
 
       {/* Add New Key Form */}
-      <div className="mb-8 bg-navy-800 rounded-lg border border-gray-700 p-6">
-        <h2 className="text-lg font-semibold text-white mb-4">Ajouter une nouvelle clé</h2>
+      <div className="mb-8 bg-navy-800 rounded-lg border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Ajouter une nouvelle clé</h2>
         <form onSubmit={handleAddKey} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
@@ -183,19 +183,19 @@ export default function Translations() {
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
               placeholder="Clé de traduction"
-              className="px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-blue-500"
+              className="px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-gold"
             />
             <input
               type="text"
               value={newKeyContext}
               onChange={(e) => setNewKeyContext(e.target.value)}
               placeholder="Contexte (optionnel)"
-              className="px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-blue-500"
+              className="px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-gold"
             />
           </div>
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-gold hover:bg-gold-strong text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <Plus size={20} />
             Ajouter clé
@@ -204,36 +204,36 @@ export default function Translations() {
       </div>
 
       {/* Translations Table */}
-      <div className="bg-navy-800 rounded-lg border border-gray-700 overflow-hidden mb-6">
+      <div className="bg-navy-800 rounded-lg border border-gray-200 overflow-hidden mb-6">
         {translations.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">
+          <div className="p-8 text-center text-gray-500">
             Aucune clé de traduction trouvée
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-navy-700 border-b border-gray-600">
+              <thead className="bg-navy-700 border-b border-gray-300">
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                     Clé
                   </th>
                   {languages.map((lang) => (
                     <th
                       key={lang.code}
-                      className="px-6 py-3 text-left text-sm font-semibold text-gray-300"
+                      className="px-6 py-3 text-left text-sm font-semibold text-gray-600"
                     >
                       {lang.name}
                     </th>
                   ))}
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                     Actions
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-600">
                 {translations.map((item) => (
-                  <tr key={item.id} className="hover:bg-navy-700 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-300">
+                  <tr key={item.id} className="hover:bg-gray-100 transition-colors">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-600">
                       {item.key}
                     </td>
                     {languages.map((lang) => (
@@ -243,7 +243,7 @@ export default function Translations() {
                           onChange={(e) =>
                             handleTranslationChange(item.id, lang.code, e.target.value)
                           }
-                          className="w-full px-3 py-1 bg-navy-700 border border-gray-600 rounded text-white placeholder-gray-500 focus:border-blue-500 text-sm"
+                          className="w-full px-3 py-1 bg-navy-700 border border-gray-300 rounded text-gray-900 placeholder-gray-400 focus:border-gold text-sm"
                           rows={1}
                         />
                       </td>
@@ -251,7 +251,7 @@ export default function Translations() {
                     <td className="px-6 py-4 text-sm">
                       <button
                         onClick={() => handleDeleteKey(item.id)}
-                        className="p-2 hover:bg-navy-600 rounded transition-colors text-red-400 hover:text-red-300"
+                        className="p-2 hover:bg-gray-200 rounded transition-colors text-red-600 hover:text-red-300"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -269,7 +269,7 @@ export default function Translations() {
         <button
           onClick={handleSaveTranslations}
           disabled={saving}
-          className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          className="bg-gold hover:bg-gold-strong disabled:bg-gray-300 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
         >
           <Save size={20} />
           {saving ? 'Enregistrement...' : 'Enregistrer toutes les traductions'}

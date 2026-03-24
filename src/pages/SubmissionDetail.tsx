@@ -67,7 +67,7 @@ export default function SubmissionDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="text-gray-400">Chargement...</div>
+        <div className="text-gray-500">Chargement...</div>
       </div>
     )
   }
@@ -75,7 +75,7 @@ export default function SubmissionDetail() {
   if (!submission) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-400">Soumission non trouvée</p>
+        <p className="text-red-600">Soumission non trouvée</p>
       </div>
     )
   }
@@ -84,131 +84,131 @@ export default function SubmissionDetail() {
     <div>
       <button
         onClick={() => navigate('/submissions')}
-        className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
+        className="flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-6 transition-colors"
       >
         <ChevronLeft size={20} />
         Retour
       </button>
 
-      <h1 className="text-3xl font-bold text-white mb-8">Détail de la soumission</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Détail de la soumission</h1>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-900/20 border border-red-700 rounded-lg flex items-start gap-3">
-          <AlertCircle size={20} className="text-red-500 mt-0.5 flex-shrink-0" />
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg flex items-start gap-3">
+          <AlertCircle size={20} className="text-red-600 mt-0.5 flex-shrink-0" />
+          <p className="text-red-600 text-sm">{error}</p>
         </div>
       )}
 
-      <div className="bg-navy-800 rounded-lg border border-gray-700 p-6">
+      <div className="bg-navy-800 rounded-lg border border-gray-200 p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Nom de l'annonceur
             </label>
             <input
               type="text"
               value={submission.advertiser_name || ''}
               disabled
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Secteur d'activité
             </label>
             <input
               type="text"
               value={submission.business_sector || ''}
               disabled
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Type de carte
             </label>
             <input
               type="text"
               value={submission.card_type || ''}
               disabled
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Langue
             </label>
             <input
               type="text"
               value={submission.language || ''}
               disabled
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Soumissionnaire
             </label>
             <input
               type="text"
               value={submission.submitted_by || ''}
               disabled
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Capacité
             </label>
             <input
               type="text"
               value={submission.submitted_capacity || ''}
               disabled
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
             />
           </div>
         </div>
 
         {/* Agency (optional) */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-600 mb-2">
             Agence
           </label>
           <input
             type="text"
             value={submission.agency || ''}
             disabled
-            className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed"
+            className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
           />
         </div>
 
         {/* Description */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-600 mb-2">
             Description
           </label>
           <textarea
             value={submission.description || ''}
             disabled
             rows={4}
-            className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed"
+            className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
           />
         </div>
 
         {/* Status */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-600 mb-2">
             Statut
           </label>
           <select
             value={submission.status || 'new'}
             onChange={(e) => handleInputChange('status', e.target.value)}
-            className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white focus:border-blue-500"
+            className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
           >
             <option value="new">Nouveau</option>
             <option value="pending">En attente</option>
@@ -222,14 +222,14 @@ export default function SubmissionDetail() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-gold hover:bg-gold-strong disabled:bg-gray-300 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <Save size={20} />
             {saving ? 'Enregistrement...' : 'Enregistrer'}
           </button>
           <button
             onClick={() => navigate('/submissions')}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors"
+            className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-6 py-2 rounded-lg transition-colors"
           >
             Annuler
           </button>

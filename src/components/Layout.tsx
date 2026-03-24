@@ -5,7 +5,6 @@ import {
   LayoutGrid,
   FileText,
   Users,
-  Settings,
   Globe,
   Mail,
   LogOut,
@@ -39,10 +38,10 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="flex h-screen bg-navy-900">
       {/* Sidebar */}
-      <aside className="hidden md:flex md:w-64 bg-navy-800 border-r border-gray-700 flex-col">
+      <aside className="hidden md:flex md:w-64 bg-navy-800 border-r border-gray-200 flex-col">
         <div className="p-6">
-          <h1 className="text-xl font-bold text-white">E-Cards Admin</h1>
-          <p className="text-sm text-gray-400 mt-1">Corporate</p>
+          <h1 className="text-xl font-bold text-gray-900">E-Cards Admin</h1>
+          <p className="text-sm text-gray-500 mt-1">Corporate</p>
         </div>
 
         <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
@@ -52,8 +51,8 @@ export function Layout({ children }: LayoutProps) {
               to={path}
               className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
                 location.pathname === path
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-300 hover:bg-navy-700'
+                  ? 'bg-gold/10 text-gold-strong border border-gold/20 font-medium'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               <Icon size={20} />
@@ -62,10 +61,10 @@ export function Layout({ children }: LayoutProps) {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-700">
+        <div className="p-4 border-t border-gray-200">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-2 rounded-lg text-gray-300 hover:bg-navy-700 transition-colors"
+            className="flex items-center gap-3 w-full px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <LogOut size={20} />
             <span>Déconnexion</span>
@@ -74,11 +73,11 @@ export function Layout({ children }: LayoutProps) {
       </aside>
 
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between w-full px-4 py-4 bg-navy-800 border-b border-gray-700">
-        <h1 className="text-lg font-bold text-white">E-Cards Admin</h1>
+      <div className="md:hidden flex items-center justify-between w-full px-4 py-4 bg-navy-800 border-b border-gray-200">
+        <h1 className="text-lg font-bold text-gray-900">E-Cards Admin</h1>
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="text-gray-300 hover:text-white"
+          className="text-gray-600 hover:text-gray-700"
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -95,8 +94,8 @@ export function Layout({ children }: LayoutProps) {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
                   location.pathname === path
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-300 hover:bg-navy-700'
+                    ? 'bg-gold/10 text-gold-strong border border-gold/20 font-medium'
+                    : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 <Icon size={20} />
@@ -104,13 +103,13 @@ export function Layout({ children }: LayoutProps) {
               </Link>
             ))}
           </nav>
-          <div className="p-4 border-t border-gray-700">
+          <div className="p-4 border-t border-gray-200">
             <button
               onClick={() => {
                 handleLogout()
                 setMobileMenuOpen(false)
               }}
-              className="flex items-center gap-3 w-full px-4 py-2 rounded-lg text-gray-300 hover:bg-navy-700 transition-colors"
+              className="flex items-center gap-3 w-full px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
             >
               <LogOut size={20} />
               <span>Déconnexion</span>

@@ -94,7 +94,7 @@ export default function ECardEdit() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="text-gray-400">Chargement...</div>
+        <div className="text-gray-500">Chargement...</div>
       </div>
     )
   }
@@ -102,7 +102,7 @@ export default function ECardEdit() {
   if (!card) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-400">E-card non trouvée</p>
+        <p className="text-red-600">E-card non trouvée</p>
       </div>
     )
   }
@@ -111,110 +111,110 @@ export default function ECardEdit() {
     <div>
       <button
         onClick={() => navigate('/ecards')}
-        className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
+        className="flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-6 transition-colors"
       >
         <ChevronLeft size={20} />
         Retour
       </button>
 
-      <h1 className="text-3xl font-bold text-white mb-8">Éditer E-Card</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Éditer E-Card</h1>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-900/20 border border-red-700 rounded-lg flex items-start gap-3">
-          <AlertCircle size={20} className="text-red-500 mt-0.5 flex-shrink-0" />
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg flex items-start gap-3">
+          <AlertCircle size={20} className="text-red-600 mt-0.5 flex-shrink-0" />
+          <p className="text-red-600 text-sm">{error}</p>
         </div>
       )}
 
-      <div className="bg-navy-800 rounded-lg border border-gray-700 p-6">
+      <div className="bg-navy-800 rounded-lg border border-gray-200 p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Basic Information */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Nom de l'annonceur
             </label>
             <input
               type="text"
               value={card.advertiser_name || ''}
               onChange={(e) => handleInputChange('advertiser_name', e.target.value)}
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white focus:border-blue-500"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Secteur d'activité
             </label>
             <input
               type="text"
               value={card.business_sector || ''}
               onChange={(e) => handleInputChange('business_sector', e.target.value)}
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white focus:border-blue-500"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Langue
             </label>
             <input
               type="text"
               value={card.language || ''}
               onChange={(e) => handleInputChange('language', e.target.value)}
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white focus:border-blue-500"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Type de carte
             </label>
             <input
               type="text"
               value={card.card_type || ''}
               onChange={(e) => handleInputChange('card_type', e.target.value)}
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white focus:border-blue-500"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Sujet
             </label>
             <input
               type="text"
               value={card.topic || ''}
               onChange={(e) => handleInputChange('topic', e.target.value)}
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white focus:border-blue-500"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Ton
             </label>
             <input
               type="text"
               value={card.tone || ''}
               onChange={(e) => handleInputChange('tone', e.target.value)}
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white focus:border-blue-500"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Audience cible
             </label>
             <input
               type="text"
               value={card.target_audience || ''}
               onChange={(e) => handleInputChange('target_audience', e.target.value)}
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white focus:border-blue-500"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Score admin (0-5)
             </label>
             <input
@@ -223,52 +223,52 @@ export default function ECardEdit() {
               max="5"
               value={card.admin_score || 0}
               onChange={(e) => handleInputChange('admin_score', parseInt(e.target.value))}
-              className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white focus:border-blue-500"
+              className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
             />
           </div>
         </div>
 
         {/* Description */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-600 mb-2">
             Description
           </label>
           <textarea
             value={card.description || ''}
             onChange={(e) => handleInputChange('description', e.target.value)}
             rows={4}
-            className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white focus:border-blue-500"
+            className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
           />
         </div>
 
         {/* Key Message */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-600 mb-2">
             Message clé
           </label>
           <textarea
             value={card.key_message || ''}
             onChange={(e) => handleInputChange('key_message', e.target.value)}
             rows={2}
-            className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white focus:border-blue-500"
+            className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
           />
         </div>
 
         {/* Tags */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-600 mb-2">
             Étiquettes
           </label>
           <div className="mb-3 flex flex-wrap gap-2">
             {card.tags?.map((tag, index) => (
               <div
                 key={index}
-                className="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm flex items-center gap-2"
               >
                 {tag}
                 <button
                   onClick={() => handleRemoveTag(index)}
-                  className="hover:text-blue-300"
+                  className="hover:text-blue-600"
                 >
                   <X size={16} />
                 </button>
@@ -281,7 +281,7 @@ export default function ECardEdit() {
             onChange={(e) => setTagInput(e.target.value)}
             onKeyPress={handleAddTag}
             placeholder="Ajouter une étiquette (appuyez sur Entrée)"
-            className="w-full px-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white focus:border-blue-500"
+            className="w-full px-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
           />
         </div>
 
@@ -292,9 +292,9 @@ export default function ECardEdit() {
               type="checkbox"
               checked={card.is_published || false}
               onChange={(e) => handleInputChange('is_published', e.target.checked)}
-              className="w-4 h-4 rounded bg-navy-700 border-gray-600"
+              className="w-4 h-4 rounded bg-navy-700 border-gray-300"
             />
-            <span className="text-gray-300">Publiée</span>
+            <span className="text-gray-600">Publiée</span>
           </label>
 
           <label className="flex items-center gap-3 cursor-pointer">
@@ -302,9 +302,9 @@ export default function ECardEdit() {
               type="checkbox"
               checked={card.is_featured || false}
               onChange={(e) => handleInputChange('is_featured', e.target.checked)}
-              className="w-4 h-4 rounded bg-navy-700 border-gray-600"
+              className="w-4 h-4 rounded bg-navy-700 border-gray-300"
             />
-            <span className="text-gray-300">En vedette</span>
+            <span className="text-gray-600">En vedette</span>
           </label>
         </div>
 
@@ -313,14 +313,14 @@ export default function ECardEdit() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-gold hover:bg-gold-strong disabled:bg-gray-300 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <Save size={20} />
             {saving ? 'Enregistrement...' : 'Enregistrer'}
           </button>
           <button
             onClick={() => navigate('/ecards')}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors"
+            className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-6 py-2 rounded-lg transition-colors"
           >
             Annuler
           </button>

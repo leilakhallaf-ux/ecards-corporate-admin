@@ -57,42 +57,42 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="text-gray-400">Chargement...</div>
+        <div className="text-gray-500">Chargement...</div>
       </div>
     )
   }
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white mb-8">Tableau de bord</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Tableau de bord</h1>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-900/20 border border-red-700 rounded-lg flex items-start gap-3">
-          <AlertCircle size={20} className="text-red-500 mt-0.5 flex-shrink-0" />
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg flex items-start gap-3">
+          <AlertCircle size={20} className="text-red-600 mt-0.5 flex-shrink-0" />
+          <p className="text-red-600 text-sm">{error}</p>
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total E-Cards */}
-        <div className="bg-navy-800 rounded-lg p-6 border border-gray-700">
+        <div className="bg-navy-800 rounded-lg p-6 border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm font-medium">E-Cards totales</p>
-              <p className="text-3xl font-bold text-white mt-2">{stats.totalECards}</p>
+              <p className="text-gray-500 text-sm font-medium">E-Cards totales</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalECards}</p>
             </div>
-            <div className="p-3 bg-blue-600/20 rounded-lg">
+            <div className="p-3 bg-blue-100 rounded-lg">
               <BarChart3 size={24} className="text-blue-500" />
             </div>
           </div>
         </div>
 
         {/* Total Views */}
-        <div className="bg-navy-800 rounded-lg p-6 border border-gray-700">
+        <div className="bg-navy-800 rounded-lg p-6 border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm font-medium">Vues totales</p>
-              <p className="text-3xl font-bold text-white mt-2">{stats.totalViews}</p>
+              <p className="text-gray-500 text-sm font-medium">Vues totales</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalViews}</p>
             </div>
             <div className="p-3 bg-green-600/20 rounded-lg">
               <Eye size={24} className="text-green-500" />
@@ -101,11 +101,11 @@ export default function Dashboard() {
         </div>
 
         {/* Total Likes */}
-        <div className="bg-navy-800 rounded-lg p-6 border border-gray-700">
+        <div className="bg-navy-800 rounded-lg p-6 border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm font-medium">Likes totaux</p>
-              <p className="text-3xl font-bold text-white mt-2">{stats.totalLikes}</p>
+              <p className="text-gray-500 text-sm font-medium">Likes totaux</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalLikes}</p>
             </div>
             <div className="p-3 bg-pink-600/20 rounded-lg">
               <Heart size={24} className="text-pink-500" />
@@ -114,11 +114,11 @@ export default function Dashboard() {
         </div>
 
         {/* New Messages */}
-        <div className="bg-navy-800 rounded-lg p-6 border border-gray-700">
+        <div className="bg-navy-800 rounded-lg p-6 border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm font-medium">Messages non lus</p>
-              <p className="text-3xl font-bold text-white mt-2">{stats.newMessages}</p>
+              <p className="text-gray-500 text-sm font-medium">Messages non lus</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.newMessages}</p>
             </div>
             <div className="p-3 bg-yellow-600/20 rounded-lg">
               <Mail size={24} className="text-yellow-500" />
@@ -128,27 +128,27 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Summary */}
-      <div className="mt-8 bg-navy-800 rounded-lg p-6 border border-gray-700">
-        <h2 className="text-xl font-bold text-white mb-4">Résumé</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
+      <div className="mt-8 bg-navy-800 rounded-lg p-6 border border-gray-200">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Résumé</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-600">
           <div>
             <p className="text-sm">
-              Vous avez actuellement <span className="font-semibold text-white">{stats.totalECards}</span> e-cards en ligne.
+              Vous avez actuellement <span className="font-semibold text-gray-900">{stats.totalECards}</span> e-cards en ligne.
             </p>
           </div>
           <div>
             <p className="text-sm">
-              Elles ont généré un total de <span className="font-semibold text-white">{stats.totalViews}</span> vues.
+              Elles ont généré un total de <span className="font-semibold text-gray-900">{stats.totalViews}</span> vues.
             </p>
           </div>
           <div>
             <p className="text-sm">
-              Les utilisateurs ont donné <span className="font-semibold text-white">{stats.totalLikes}</span> likes.
+              Les utilisateurs ont donné <span className="font-semibold text-gray-900">{stats.totalLikes}</span> likes.
             </p>
           </div>
           <div>
             <p className="text-sm">
-              Vous avez <span className="font-semibold text-white">{stats.newMessages}</span> message(s) non lu(s).
+              Vous avez <span className="font-semibold text-gray-900">{stats.newMessages}</span> message(s) non lu(s).
             </p>
           </div>
         </div>

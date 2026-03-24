@@ -54,7 +54,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (isAuthenticated === null) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-navy-900">
-        <div className="text-gray-400">Chargement...</div>
+        <div className="text-gray-500">Chargement...</div>
       </div>
     )
   }

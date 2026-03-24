@@ -8,10 +8,13 @@ export default {
     extend: {
       colors: {
         navy: {
-          900: "#0f1219",
-          800: "#1a1b2e",
-          700: "#2d2e4a",
-        }
+          900: "#f9fafb",
+          800: "#ffffff",
+          700: "#f3f4f6",
+          600: "#e5e7eb",
+        },
+        gold: '#C9A96E',
+        'gold-strong': '#B8943F',
       }
     },
   },

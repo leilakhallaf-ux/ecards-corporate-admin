@@ -77,25 +77,25 @@ export default function Users() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="text-gray-400">Chargement...</div>
+        <div className="text-gray-500">Chargement...</div>
       </div>
     )
   }
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white mb-8">Utilisateurs administrateurs</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Utilisateurs administrateurs</h1>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-900/20 border border-red-700 rounded-lg flex items-start gap-3">
-          <AlertCircle size={20} className="text-red-500 mt-0.5 flex-shrink-0" />
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg flex items-start gap-3">
+          <AlertCircle size={20} className="text-red-600 mt-0.5 flex-shrink-0" />
+          <p className="text-red-600 text-sm">{error}</p>
         </div>
       )}
 
       {/* Add New User Form */}
-      <div className="mb-8 bg-navy-800 rounded-lg border border-gray-700 p-6">
-        <h2 className="text-lg font-semibold text-white mb-4">Ajouter un nouvel utilisateur</h2>
+      <div className="mb-8 bg-navy-800 rounded-lg border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Ajouter un nouvel utilisateur</h2>
         <form onSubmit={handleAddUser} className="flex gap-4 flex-col md:flex-row">
           <div className="flex-1 relative">
             <Mail className="absolute left-3 top-3 text-gray-500" size={20} />
@@ -104,13 +104,13 @@ export default function Users() {
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
               placeholder="Adresse e-mail"
-              className="w-full pl-10 pr-4 py-2 bg-navy-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2 bg-navy-700 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-gold"
             />
           </div>
           <button
             type="submit"
             disabled={addingUser || !newEmail.trim()}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors whitespace-nowrap"
+            className="bg-gold hover:bg-gold-strong disabled:bg-gray-300 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors whitespace-nowrap"
           >
             <Plus size={20} />
             {addingUser ? 'Ajout...' : 'Ajouter'}
@@ -119,40 +119,40 @@ export default function Users() {
       </div>
 
       {/* Users Table */}
-      <div className="bg-navy-800 rounded-lg border border-gray-700 overflow-hidden">
+      <div className="bg-navy-800 rounded-lg border border-gray-200 overflow-hidden">
         {users.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">
+          <div className="p-8 text-center text-gray-500">
             Aucun utilisateur administrateur trouvé
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-navy-700 border-b border-gray-600">
+              <thead className="bg-navy-700 border-b border-gray-300">
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                     Adresse e-mail
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                     Date de création
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                     Actions
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-600">
                 {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-navy-700 transition-colors">
-                    <td className="px-6 py-4 text-sm text-gray-300">
+                  <tr key={user.id} className="hover:bg-gray-100 transition-colors">
+                    <td className="px-6 py-4 text-sm text-gray-600">
                       {user.email}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-300">
+                    <td className="px-6 py-4 text-sm text-gray-600">
                       {new Date(user.created_at).toLocaleDateString('fr-FR')}
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <button
                         onClick={() => handleDeleteUser(user.id)}
-                        className="p-2 hover:bg-navy-600 rounded transition-colors text-red-400 hover:text-red-300"
+                        className="p-2 hover:bg-gray-200 rounded transition-colors text-red-600 hover:text-red-300"
                       >
                         <Trash2 size={18} />
                       </button>
