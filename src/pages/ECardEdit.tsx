@@ -4,17 +4,36 @@ import { supabase } from '../lib/supabase'
 import { ECard } from '../lib/types'
 import { AlertCircle, Save, ChevronLeft, X } from 'lucide-react'
 
+const emptyCard: Partial<ECard> = {
+  advertiser_name: '',
+  business_sector: '',
+  language: 'fr',
+  card_type: '',
+  topic: '',
+  description: '',
+  tags: [],
+  is_published: false,
+  is_featured: false,
+  admin_score: 0,
+  target_audience: '',
+  key_message: '',
+  tone: '',
+}
+
 export default function ECardEdit() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [card, setCard] = useState<Partial<ECard> | null>(null)
-  const [loading, setLoading] = useState(true)
+  const isNew = id === 'new'
+  const [card, setCard] = useState<Partial<ECard> | null>(isNew ? { ...emptyCard } : null)
+  const [loading, setLoading] = useState(!isNew)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [tagInput, setTagInput] = useState('')
 
   useEffect(() => {
-    fetchCard()
+    if (!isNew) {
+      fetchCard()
+    }
   }, [id])
 
   const fetchCard = async () => {
@@ -54,33 +73,43 @@ export default function ECardEdit() {
   }
 
   const handleSave = async () => {
-    if (!card || !id) return
+    if (!card) return
 
     try {
       setSaving(true)
       setError(null)
 
-      const { error: updateError } = await supabase
-        .from('e_cards')
-        .update({
-          advertiser_name: card.advertiser_name,
-          business_sector: card.business_sector,
-          language: card.language,
-          card_type: card.card_type,
-          topic: card.topic,
-          description: card.description,
-          tags: card.tags,
-          is_published: card.is_published,
-          is_featured: card.is_featured,
-          admin_score: card.admin_score,
-          target_audience: card.target_audience,
-          key_message: card.key_message,
-          tone: card.tone,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', id)
+      const cardData = {
+        advertiser_name: card.advertiser_name,
+        business_sector: card.business_sector,
+        language: card.language,
+        card_type: card.card_type,
+        topic: card.topic,
+        description: card.description,
+        tags: card.tags,
+        is_published: card.is_published,
+        is_featured: card.is_featured,
+        admin_score: card.admin_score,
+        target_audience: card.target_audience,
+        key_message: card.key_message,
+        tone: card.tone,
+        updated_at: new Date().toISOString(),
+      }
 
-      if (updateError) throw updateError
+      if (isNew) {
+        const { error: insertError } = await supabase
+          .from('e_cards')
+          .insert({ ...cardData, created_at: new Date().toISOString() })
+
+        if (insertError) throw insertError
+      } else {
+        const { error: updateError } = await supabase
+          .from('e_cards')
+          .update(cardData)
+          .eq('id', id)
+
+        if (updateError) throw updateError
+      }
 
       navigate('/ecards')
     } catch (err) {
@@ -117,7 +146,7 @@ export default function ECardEdit() {
         Retour
       </button>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Éditer E-Card</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">{isNew ? 'Nouvelle E-Card' : 'Éditer E-Card'}</h1>
 
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg flex items-start gap-3">
@@ -316,7 +345,7 @@ export default function ECardEdit() {
             className="bg-gold hover:bg-gold-strong disabled:bg-gray-300 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <Save size={20} />
-            {saving ? 'Enregistrement...' : 'Enregistrer'}
+            {saving ? 'Enregistrement...' : isNew ? 'Créer' : 'Enregistrer'}
           </button>
           <button
             onClick={() => navigate('/ecards')}

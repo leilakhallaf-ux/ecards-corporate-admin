@@ -72,10 +72,10 @@ export default function ECards() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-900">E-Cards</h1>
-        <button className="bg-gold hover:bg-gold-strong text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+        <Link to="/ecards/new" className="bg-gold hover:bg-gold-strong text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
           <Plus size={20} />
           Nouveau
-        </button>
+        </Link>
       </div>
 
       {error && (
