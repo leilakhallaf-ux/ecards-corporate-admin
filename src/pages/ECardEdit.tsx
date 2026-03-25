@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ECard } from '../lib/types'
-import { AlertCircle, Save, ChevronLeft, X, Plus, Upload, Loader2 } from 'lucide-react'
+import { AlertCircle, Save, ChevronLeft, X, Plus, Upload, Loader2, Film, Play, Maximize2 } from 'lucide-react'
 
 const LANGUAGES = [
   { value: 'fr', label: 'Français' },
@@ -51,6 +51,7 @@ const emptyCard: Partial<ECard> = {
   description: '',
   is_published: false,
   is_featured: false,
+  video_url: '',
 }
 
 export default function ECardEdit() {
@@ -65,8 +66,11 @@ export default function ECardEdit() {
   const [extraCredits, setExtraCredits] = useState<Array<{ role: string; name: string }>>([])
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [uploadingVideo, setUploadingVideo] = useState(false)
+  const [showVideoLightbox, setShowVideoLightbox] = useState(false)
   const thumbnailInputRef = useRef<HTMLInputElement>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
+  const videoInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!isNew) {
@@ -140,10 +144,10 @@ export default function ECardEdit() {
 
   const handleFileUpload = async (
     file: File,
-    bucket: 'thumbnails' | 'logos',
-    field: 'thumbnail_url' | 'advertiser_logo_url'
+    bucket: 'thumbnails' | 'logos' | 'videos',
+    field: 'thumbnail_url' | 'advertiser_logo_url' | 'video_url'
   ) => {
-    const setUploading = bucket === 'thumbnails' ? setUploadingThumbnail : setUploadingLogo
+    const setUploading = bucket === 'thumbnails' ? setUploadingThumbnail : bucket === 'logos' ? setUploadingLogo : setUploadingVideo
     setUploading(true)
     setError(null)
 
@@ -231,6 +235,7 @@ export default function ECardEdit() {
         description: card.description || null,
         is_published: card.is_published || false,
         is_featured: card.is_featured || false,
+        video_url: card.video_url || null,
         updated_at: new Date().toISOString(),
       }
 
@@ -427,7 +432,146 @@ export default function ECardEdit() {
             </div>
           </div>
         </div>
+
+        {/* Video upload & preview */}
+        <div className="mt-5">
+          <label className={labelClass}>Vidéo (optionnel)</label>
+          <input
+            ref={videoInputRef}
+            type="file"
+            accept="video/mp4,video/webm,video/ogg"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) handleFileUpload(file, 'videos', 'video_url')
+              e.target.value = ''
+            }}
+          />
+          <div className="flex items-start gap-3">
+            <button
+              type="button"
+              onClick={() => card.video_url ? setShowVideoLightbox(true) : videoInputRef.current?.click()}
+              disabled={uploadingVideo}
+              className="w-24 h-16 bg-gray-900 border border-gray-300 rounded-lg flex items-center justify-center text-gray-400 flex-shrink-0 hover:border-gold cursor-pointer transition-colors disabled:opacity-50 relative overflow-hidden group"
+              title={card.video_url ? 'Cliquer pour prévisualiser' : 'Cliquer pour uploader'}
+            >
+              {uploadingVideo ? (
+                <Loader2 size={24} className="animate-spin text-gold" />
+              ) : card.video_url ? (
+                <>
+                  <video
+                    src={card.video_url}
+                    className="w-full h-full object-cover"
+                    muted
+                    preload="metadata"
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Play size={20} className="text-white" fill="white" />
+                  </div>
+                  <div className="absolute top-0.5 right-0.5 bg-gold text-white text-[8px] font-bold px-1 rounded">
+                    MP4
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center gap-0.5">
+                  <Film size={20} />
+                  <span className="text-[9px]">Vidéo</span>
+                </div>
+              )}
+            </button>
+            <div className="flex-1">
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={card.video_url || ''}
+                  onChange={(e) => handleInputChange('video_url', e.target.value)}
+                  placeholder="URL vidéo ...ou uploader un fichier"
+                  className={`flex-1 ${inputClass}`}
+                />
+                {card.video_url && (
+                  <button
+                    type="button"
+                    onClick={() => setShowVideoLightbox(true)}
+                    className="px-3 py-2 bg-gray-900 text-gold border border-gold rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-1.5 text-sm font-medium"
+                    title="Prévisualiser la vidéo"
+                  >
+                    <Play size={14} fill="currentColor" />
+                    Voir
+                  </button>
+                )}
+                {!card.video_url && (
+                  <button
+                    type="button"
+                    onClick={() => videoInputRef.current?.click()}
+                    disabled={uploadingVideo}
+                    className="px-3 py-2 bg-gold text-white rounded-lg hover:bg-gold-strong transition-colors flex items-center gap-1.5 text-sm disabled:opacity-50"
+                  >
+                    <Upload size={14} />
+                    Upload
+                  </button>
+                )}
+              </div>
+              {card.video_url && (
+                <div className="flex items-center gap-2 mt-1.5">
+                  <span className="text-[11px] text-gray-400 truncate">
+                    {decodeURIComponent(card.video_url.split('/').pop() || '')}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleInputChange('video_url', '')}
+                    className="text-red-400 hover:text-red-600 transition-colors"
+                    title="Supprimer la vidéo"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Video Lightbox */}
+      {showVideoLightbox && card.video_url && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-8"
+          onClick={() => setShowVideoLightbox(false)}
+        >
+          <div
+            className="relative max-w-4xl w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowVideoLightbox(false)}
+              className="absolute -top-10 right-0 text-white hover:text-gold transition-colors flex items-center gap-2 text-sm"
+            >
+              Fermer <X size={20} />
+            </button>
+            <video
+              controls
+              autoPlay
+              className="w-full rounded-lg shadow-2xl"
+              src={card.video_url}
+            >
+              Votre navigateur ne supporte pas la lecture vidéo.
+            </video>
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-gray-400 text-xs">
+                {decodeURIComponent(card.video_url.split('/').pop() || '')}
+              </span>
+              <a
+                href={card.video_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gold text-xs hover:underline flex items-center gap-1"
+              >
+                <Maximize2 size={12} />
+                Ouvrir dans un nouvel onglet
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ===== SECTION: E-Card ===== */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
