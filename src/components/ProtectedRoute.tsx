@@ -12,23 +12,29 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     async function checkAuth() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      try {
+        // Use getSession() first (reads localStorage, no network call)
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
 
-      if (!user) {
+        if (!session?.user) {
+          setIsAuthenticated(false)
+          return
+        }
+
+        const adminStatus = await isAdmin(session.user.email || '')
+        if (!adminStatus) {
+          setIsAuthenticated(false)
+          return
+        }
+
+        setIsAuthenticated(true)
+        setIsAdminUser(true)
+      } catch (err) {
+        console.error('Auth check failed:', err)
         setIsAuthenticated(false)
-        return
       }
-
-      const adminStatus = await isAdmin(user.email || '')
-      if (!adminStatus) {
-        setIsAuthenticated(false)
-        return
-      }
-
-      setIsAuthenticated(true)
-      setIsAdminUser(true)
     }
 
     checkAuth()
