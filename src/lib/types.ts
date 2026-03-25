@@ -35,6 +35,7 @@ export interface ECard {
   is_published: boolean
   is_featured: boolean
   thumbnail_url: string | null
+    video_url: string | null
 }
 
 export interface ECardSubmission {
