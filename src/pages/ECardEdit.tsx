@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ECard } from '../lib/types'
-import { AlertCircle, Save, ChevronLeft, X, Plus, Upload } from 'lucide-react'
+import { AlertCircle, Save, ChevronLeft, X, Plus, Upload, Loader2 } from 'lucide-react'
 
 const LANGUAGES = [
   { value: 'fr', label: 'Français' },
@@ -63,6 +63,10 @@ export default function ECardEdit() {
   const [error, setError] = useState<string | null>(null)
   const [tagInput, setTagInput] = useState('')
   const [extraCredits, setExtraCredits] = useState<Array<{ role: string; name: string }>>([])
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const thumbnailInputRef = useRef<HTMLInputElement>(null)
+  const logoInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!isNew) {
@@ -132,6 +136,43 @@ export default function ECardEdit() {
 
   const handleRemoveCredit = (index: number) => {
     setExtraCredits(extraCredits.filter((_, i) => i !== index))
+  }
+
+  const handleFileUpload = async (
+    file: File,
+    bucket: 'thumbnails' | 'logos',
+    field: 'thumbnail_url' | 'advertiser_logo_url'
+  ) => {
+    const setUploading = bucket === 'thumbnails' ? setUploadingThumbnail : setUploadingLogo
+    setUploading(true)
+    setError(null)
+
+    try {
+      // Generate unique filename
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'png'
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`
+
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+        })
+
+      if (uploadError) throw uploadError
+
+      // Get public URL
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from(bucket).getPublicUrl(fileName)
+
+      handleInputChange(field, publicUrl)
+    } catch (err: any) {
+      console.error('Upload failed:', err)
+      setError(`Erreur upload : ${err.message || 'Erreur inconnue'}`)
+    } finally {
+      setUploading(false)
+    }
   }
 
   const validate = (): string | null => {
@@ -301,9 +342,27 @@ export default function ECardEdit() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
           <div>
             <label className={labelClass}>Thumbnail *</label>
+            <input
+              ref={thumbnailInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) handleFileUpload(file, 'thumbnails', 'thumbnail_url')
+                e.target.value = ''
+              }}
+            />
             <div className="flex items-start gap-3">
-              <div className="w-16 h-16 bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center text-gray-400 flex-shrink-0">
-                {card.thumbnail_url ? (
+              <button
+                type="button"
+                onClick={() => thumbnailInputRef.current?.click()}
+                disabled={uploadingThumbnail}
+                className="w-16 h-16 bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center text-gray-400 flex-shrink-0 hover:bg-gray-200 hover:border-gold cursor-pointer transition-colors disabled:opacity-50"
+              >
+                {uploadingThumbnail ? (
+                  <Loader2 size={24} className="animate-spin text-gold" />
+                ) : card.thumbnail_url ? (
                   <img
                     src={card.thumbnail_url}
                     alt="Thumbnail"
@@ -312,7 +371,7 @@ export default function ECardEdit() {
                 ) : (
                   <Upload size={24} />
                 )}
-              </div>
+              </button>
               <div className="flex-1">
                 <input
                   type="url"
@@ -326,9 +385,27 @@ export default function ECardEdit() {
           </div>
           <div>
             <label className={labelClass}>Logo annonceur</label>
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) handleFileUpload(file, 'logos', 'advertiser_logo_url')
+                e.target.value = ''
+              }}
+            />
             <div className="flex items-start gap-3">
-              <div className="w-16 h-16 bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center text-gray-400 flex-shrink-0">
-                {card.advertiser_logo_url ? (
+              <button
+                type="button"
+                onClick={() => logoInputRef.current?.click()}
+                disabled={uploadingLogo}
+                className="w-16 h-16 bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center text-gray-400 flex-shrink-0 hover:bg-gray-200 hover:border-gold cursor-pointer transition-colors disabled:opacity-50"
+              >
+                {uploadingLogo ? (
+                  <Loader2 size={24} className="animate-spin text-gold" />
+                ) : card.advertiser_logo_url ? (
                   <img
                     src={card.advertiser_logo_url}
                     alt="Logo"
@@ -337,7 +414,7 @@ export default function ECardEdit() {
                 ) : (
                   <Upload size={24} />
                 )}
-              </div>
+              </button>
               <div className="flex-1">
                 <input
                   type="url"
