@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ECard } from '../lib/types'
-import { Edit2, Trash2, Search, AlertCircle, Plus } from 'lucide-react'
+import { Edit2, Trash2, Search, AlertCircle, Plus, Video, Link2 } from 'lucide-react'
 
 export default function ECards() {
   const [ecards, setEcards] = useState<ECard[]>([])
@@ -126,6 +126,9 @@ export default function ECards() {
                     Annonceur
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
+                    Type
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                     Secteur
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
@@ -150,6 +153,13 @@ export default function ECards() {
                   <tr key={card.id} className="hover:bg-gray-100 transition-colors">
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {card.advertiser_name || '—'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-center">
+                      {card.video_url ? (
+                        <Video className="w-4 h-4 text-purple-400 mx-auto" title="Vidéo" />
+                      ) : (
+                        <Link2 className="w-4 h-4 text-blue-400 mx-auto" title="Lien" />
+                      )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {card.business_sector || '—'}
