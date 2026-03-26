@@ -19,6 +19,7 @@ export default function ECards() {
   const [filterSecteur, setFilterSecteur] = useState<string>('all')
   const [filterSujet, setFilterSujet] = useState<string>('all')
   const [filterStatut, setFilterStatut] = useState<string>('all')
+  const [filterType, setFilterType] = useState<string>('all')
 
   useEffect(() => {
     fetchECards()
@@ -48,7 +49,7 @@ export default function ECards() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('\u00cates-vous s\u00fbr de vouloir supprimer cette e-card ?')) return
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette e-card ?')) return
 
     try {
       const { error: deleteError } = await supabase.from('e_cards').delete().eq('id', id)
@@ -98,8 +99,11 @@ export default function ECards() {
       const matchesStatut = filterStatut === 'all' ||
         (filterStatut === 'published' && card.is_published) ||
         (filterStatut === 'unpublished' && !card.is_published)
+      const matchesType = filterType === 'all' ||
+        (filterType === 'video' && !!card.video_url) ||
+        (filterType === 'link' && !card.video_url)
 
-      return matchesSearch && matchesAnnonceur && matchesSecteur && matchesSujet && matchesStatut
+      return matchesSearch && matchesAnnonceur && matchesSecteur && matchesSujet && matchesStatut && matchesType
     })
 
     if (sortColumn) {
@@ -121,7 +125,7 @@ export default function ECards() {
     }
 
     return result
-  }, [ecards, searchTerm, filterAnnonceur, filterSecteur, filterSujet, filterStatut, sortColumn, sortDirection])
+  }, [ecards, searchTerm, filterAnnonceur, filterSecteur, filterSujet, filterStatut, filterType, sortColumn, sortDirection])
 
   const SortIcon = ({ column }: { column: SortColumn }) => {
     if (sortColumn !== column) return <ChevronUp className="w-3 h-3 text-gray-400 opacity-40" />
@@ -135,11 +139,13 @@ export default function ECards() {
     setFilterSecteur('all')
     setFilterSujet('all')
     setFilterStatut('all')
+    setFilterType('all')
+    setFilterPublished('all')
     setSortColumn(null)
     setSearchTerm('')
   }
 
-  const hasActiveFilters = filterAnnonceur !== 'all' || filterSecteur !== 'all' || filterSujet !== 'all' || filterStatut !== 'all'
+  const hasActiveFilters = filterAnnonceur !== 'all' || filterSecteur !== 'all' || filterSujet !== 'all' || filterStatut !== 'all' || filterType !== 'all' || searchTerm !== ''
 
   if (loading) {
     return (
@@ -185,8 +191,8 @@ export default function ECards() {
             className="px-4 py-2 bg-navy-800 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
           >
             <option value="all">Toutes</option>
-            <option value="published">Publi\u00e9es</option>
-            <option value="unpublished">Non publi\u00e9es</option>
+            <option value="published">Publiées</option>
+            <option value="unpublished">Non publiées</option>
           </select>
         </div>
 
@@ -195,6 +201,11 @@ export default function ECards() {
           <select value={filterAnnonceur} onChange={(e) => setFilterAnnonceur(e.target.value)} className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
             <option value="all">Annonceur: Tous</option>
             {uniqueAnnonceurs.map(v => <option key={v} value={v}>{v}</option>)}
+          </select>
+          <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
+            <option value="all">Type: Tous</option>
+            <option value="video">Vid\u00e9o</option>
+            <option value="link">Lien</option>
           </select>
           <select value={filterSecteur} onChange={(e) => setFilterSecteur(e.target.value)} className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
             <option value="all">Secteur: Tous</option>
@@ -206,12 +217,12 @@ export default function ECards() {
           </select>
           <select value={filterStatut} onChange={(e) => setFilterStatut(e.target.value)} className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
             <option value="all">Statut: Tous</option>
-            <option value="published">Publi\u00e9e</option>
+            <option value="published">Publiée</option>
             <option value="unpublished">Brouillon</option>
           </select>
           {hasActiveFilters && (
             <button onClick={resetFilters} className="px-3 py-1.5 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors">
-              R\u00e9initialiser filtres
+              Réinitialiser filtres
             </button>
           )}
         </div>
@@ -221,7 +232,7 @@ export default function ECards() {
       <div className="bg-navy-800 rounded-lg border border-gray-200 overflow-hidden">
         {filteredEcards.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            Aucune e-card trouv\u00e9e
+            Aucune e-card trouvée
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -299,7 +310,7 @@ export default function ECards() {
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${card.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
-                        {card.is_published ? 'Publi\u00e9e' : 'Brouillon'}
+                        {card.is_published ? 'Publiée' : 'Brouillon'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm">
