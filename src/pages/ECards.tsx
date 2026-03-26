@@ -204,7 +204,7 @@ export default function ECards() {
           </select>
           <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
             <option value="all">Type: Tous</option>
-            <option value="video">Vid\u00e9o</option>
+            <option value="video">Vidéo</option>
             <option value="link">Lien</option>
           </select>
           <select value={filterSecteur} onChange={(e) => setFilterSecteur(e.target.value)} className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
