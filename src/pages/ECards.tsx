@@ -156,9 +156,9 @@ export default function ECards() {
                     </td>
                     <td className="px-6 py-4 text-sm text-center">
                       {card.video_url ? (
-                        <Video className="w-4 h-4 text-purple-400 mx-auto" title="Vidéo" />
+                        <Video className="w-4 h-4 text-purple-400 mx-auto" />
                       ) : (
-                        <Link2 className="w-4 h-4 text-blue-400 mx-auto" title="Lien" />
+                        <Link2 className="w-4 h-4 text-blue-400 mx-auto" />
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
