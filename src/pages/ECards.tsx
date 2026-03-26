@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { ECard } from '../lib/types'
 import { Edit2, Trash2, Search, AlertCircle, Plus, Video, Link2, ChevronUp, ChevronDown } from 'lucide-react'
 
-type SortColumn = 'advertiser_name' | 'business_sector' | 'topic' | 'views_count' | 'likes_count' | 'is_published'
+type SortColumn = 'advertiser_name' | 'business_sector' | 'topic' | 'views' | 'likes' | 'is_published'
 type SortDirection = 'asc' | 'desc'
 
 export default function ECards() {
@@ -249,16 +249,16 @@ export default function ECards() {
                       <SortIcon column="topic" />
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('views_count')}>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('views')}>
                     <div className="flex items-center gap-1">
                       Vues
-                      <SortIcon column="views_count" />
+                      <SortIcon column="views" />
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('likes_count')}>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('likes')}>
                     <div className="flex items-center gap-1">
                       Likes
-                      <SortIcon column="likes_count" />
+                      <SortIcon column="likes" />
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('is_published')}>
@@ -292,10 +292,10 @@ export default function ECards() {
                       {card.topic || '\u2014'}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {card.views_count || 0}
+                      {card.views || 0}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {card.likes_count || 0}
+                      {card.likes || 0}
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${card.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
