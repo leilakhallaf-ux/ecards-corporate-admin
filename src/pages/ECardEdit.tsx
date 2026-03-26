@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ECard } from '../lib/types'
-import { AlertCircle, Save, ChevronLeft, X, Plus, Upload, Loader2, Film, Play, Maximize2 } from 'lucide-react'
+import { AlertCircle, Save, ChevronLeft, X, Plus, Upload, Loader2, Film, Play, Maximize2, ChevronUp, ChevronDown } from 'lucide-react'
 
 const LANGUAGES = [
   { value: 'fr', label: 'Français' },
@@ -58,6 +58,7 @@ export default function ECardEdit() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const isNew = id === 'new'
+
   const [card, setCard] = useState<Partial<ECard> | null>(isNew ? { ...emptyCard } : null)
   const [loading, setLoading] = useState(!isNew)
   const [saving, setSaving] = useState(false)
@@ -88,13 +89,20 @@ export default function ECardEdit() {
 
       if (fetchError) throw fetchError
       setCard(data)
-      // Parse extra credits from credits JSON
-      if (data?.credits && typeof data.credits === 'object') {
-        const entries = Object.entries(data.credits).map(([role, name]) => ({
-          role,
-          name: name as string,
-        }))
-        setExtraCredits(entries)
+
+      // Parse extra credits - support both array (new) and object (legacy) formats
+      if (data?.credits) {
+        if (Array.isArray(data.credits)) {
+          // New format: ordered array of {role, name}
+          setExtraCredits(data.credits)
+        } else if (typeof data.credits === 'object') {
+          // Legacy format: {role: name} object (unordered)
+          const entries = Object.entries(data.credits).map(([role, name]) => ({
+            role,
+            name: name as string,
+          }))
+          setExtraCredits(entries)
+        }
       }
     } catch (err) {
       console.error('Error fetching card:', err)
@@ -142,17 +150,32 @@ export default function ECardEdit() {
     setExtraCredits(extraCredits.filter((_, i) => i !== index))
   }
 
+  const handleMoveCredit = (index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1
+    if (newIndex < 0 || newIndex >= extraCredits.length) return
+    const updated = [...extraCredits]
+    const temp = updated[index]
+    updated[index] = updated[newIndex]
+    updated[newIndex] = temp
+    setExtraCredits(updated)
+  }
+
   const handleFileUpload = async (
     file: File,
     bucket: 'thumbnails' | 'logos' | 'videos',
     field: 'thumbnail_url' | 'advertiser_logo_url' | 'video_url'
   ) => {
-    const setUploading = bucket === 'thumbnails' ? setUploadingThumbnail : bucket === 'logos' ? setUploadingLogo : setUploadingVideo
+    const setUploading =
+      bucket === 'thumbnails'
+        ? setUploadingThumbnail
+        : bucket === 'logos'
+          ? setUploadingLogo
+          : setUploadingVideo
+
     setUploading(true)
     setError(null)
 
     try {
-      // Generate unique filename
       const ext = file.name.split('.').pop()?.toLowerCase() || 'png'
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`
 
@@ -165,7 +188,6 @@ export default function ECardEdit() {
 
       if (uploadError) throw uploadError
 
-      // Get public URL
       const {
         data: { publicUrl },
       } = supabase.storage.from(bucket).getPublicUrl(fileName)
@@ -202,13 +224,10 @@ export default function ECardEdit() {
       setSaving(true)
       setError(null)
 
-      // Build credits object from extra credits
-      const creditsObj: Record<string, string> = {}
-      extraCredits.forEach(({ role, name }) => {
-        if (role.trim() && name.trim()) {
-          creditsObj[role.trim()] = name.trim()
-        }
-      })
+      // Build credits array from extra credits (preserves order)
+      const creditsArr = extraCredits
+        .filter(({ role, name }) => role.trim() && name.trim())
+        .map(({ role, name }) => ({ role: role.trim(), name: name.trim() }))
 
       const cardData = {
         advertiser_name: card.advertiser_name,
@@ -231,7 +250,7 @@ export default function ECardEdit() {
         submitted_by: card.submitted_by,
         submitted_capacity: card.submitted_capacity || null,
         agency: card.agency || null,
-        credits: Object.keys(creditsObj).length > 0 ? creditsObj : null,
+        credits: creditsArr.length > 0 ? creditsArr : null,
         description: card.description || null,
         is_published: card.is_published || false,
         is_featured: card.is_featured || false,
@@ -243,7 +262,6 @@ export default function ECardEdit() {
         const { error: insertError } = await supabase
           .from('e_cards')
           .insert({ ...cardData, created_at: new Date().toISOString() })
-
         if (insertError) throw insertError
       } else {
         const { error: updateError } = await supabase
@@ -388,6 +406,7 @@ export default function ECardEdit() {
               </div>
             </div>
           </div>
+
           <div>
             <label className={labelClass}>Logo annonceur</label>
             <input
@@ -450,10 +469,16 @@ export default function ECardEdit() {
           <div className="flex items-start gap-3">
             <button
               type="button"
-              onClick={() => card.video_url ? setShowVideoLightbox(true) : videoInputRef.current?.click()}
+              onClick={() =>
+                card.video_url
+                  ? setShowVideoLightbox(true)
+                  : videoInputRef.current?.click()
+              }
               disabled={uploadingVideo}
               className="w-24 h-16 bg-gray-900 border border-gray-300 rounded-lg flex items-center justify-center text-gray-400 flex-shrink-0 hover:border-gold cursor-pointer transition-colors disabled:opacity-50 relative overflow-hidden group"
-              title={card.video_url ? 'Cliquer pour prévisualiser' : 'Cliquer pour uploader'}
+              title={
+                card.video_url ? 'Cliquer pour prévisualiser' : 'Cliquer pour uploader'
+              }
             >
               {uploadingVideo ? (
                 <Loader2 size={24} className="animate-spin text-gold" />
@@ -582,7 +607,9 @@ export default function ECardEdit() {
             <input
               type="number"
               value={card.vintage || ''}
-              onChange={(e) => handleInputChange('vintage', parseInt(e.target.value) || null)}
+              onChange={(e) =>
+                handleInputChange('vintage', parseInt(e.target.value) || null)
+              }
               placeholder="Millésime * (ex: 2023)"
               className={inputClass}
             />
@@ -745,6 +772,7 @@ export default function ECardEdit() {
       {/* ===== SECTION: Credits ===== */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
         <h2 className={sectionTitleClass}>Credits</h2>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label className={labelClass}>Soumise par *</label>
@@ -778,13 +806,33 @@ export default function ECardEdit() {
           </div>
         </div>
 
-        {/* Extra credits */}
+        {/* Extra credits with move up/down buttons */}
         <div className="mt-5">
           <label className="block text-sm text-gray-500 mb-2">
             Crédits supplémentaires (optionnel)
           </label>
           {extraCredits.map((credit, index) => (
-            <div key={index} className="flex gap-2 mb-2">
+            <div key={index} className="flex gap-2 mb-2 items-center">
+              <div className="flex flex-col">
+                <button
+                  type="button"
+                  onClick={() => handleMoveCredit(index, 'up')}
+                  disabled={index === 0}
+                  className="p-0.5 text-gray-400 hover:text-gold disabled:opacity-30 transition-colors"
+                  title="Monter"
+                >
+                  <ChevronUp size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleMoveCredit(index, 'down')}
+                  disabled={index === extraCredits.length - 1}
+                  className="p-0.5 text-gray-400 hover:text-gold disabled:opacity-30 transition-colors"
+                  title="Descendre"
+                >
+                  <ChevronDown size={16} />
+                </button>
+              </div>
               <input
                 type="text"
                 value={credit.role}
@@ -812,8 +860,7 @@ export default function ECardEdit() {
             onClick={handleAddCredit}
             className="text-gold hover:text-gold-strong text-sm flex items-center gap-1 mt-1 transition-colors"
           >
-            <Plus size={16} />
-            Ajouter un crédit
+            <Plus size={16} /> Ajouter un crédit
           </button>
         </div>
       </div>
