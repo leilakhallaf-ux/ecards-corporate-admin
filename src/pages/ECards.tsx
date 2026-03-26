@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ECard } from '../lib/types'
-import { Edit2, Trash2, Search, AlertCircle, Plus, Video, Link2 } from 'lucide-react'
+import { Edit2, Trash2, Search, AlertCircle, Plus, Video, Link2, ChevronUp, ChevronDown } from 'lucide-react'
+
+type SortColumn = 'advertiser_name' | 'business_sector' | 'topic' | 'views_count' | 'likes_count' | 'is_published'
+type SortDirection = 'asc' | 'desc'
 
 export default function ECards() {
   const [ecards, setEcards] = useState<ECard[]>([])
@@ -10,6 +13,12 @@ export default function ECards() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterPublished, setFilterPublished] = useState<string>('all')
+  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null)
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [filterAnnonceur, setFilterAnnonceur] = useState<string>('all')
+  const [filterSecteur, setFilterSecteur] = useState<string>('all')
+  const [filterSujet, setFilterSujet] = useState<string>('all')
+  const [filterStatut, setFilterStatut] = useState<string>('all')
 
   useEffect(() => {
     fetchECards()
@@ -39,7 +48,7 @@ export default function ECards() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette e-card ?')) return
+    if (!confirm('\u00cates-vous s\u00fbr de vouloir supprimer cette e-card ?')) return
 
     try {
       const { error: deleteError } = await supabase.from('e_cards').delete().eq('id', id)
@@ -51,14 +60,86 @@ export default function ECards() {
     }
   }
 
-  const filteredEcards = ecards.filter((card) => {
-    const searchLower = searchTerm.toLowerCase()
-    return (
-      card.advertiser_name?.toLowerCase().includes(searchLower) ||
-      card.business_sector?.toLowerCase().includes(searchLower) ||
-      card.topic?.toLowerCase().includes(searchLower)
-    )
-  })
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortColumn(column)
+      setSortDirection('asc')
+    }
+  }
+
+  const uniqueAnnonceurs = useMemo(() => {
+    const values = ecards.map(c => c.advertiser_name).filter(Boolean) as string[]
+    return [...new Set(values)].sort()
+  }, [ecards])
+
+  const uniqueSecteurs = useMemo(() => {
+    const values = ecards.map(c => c.business_sector).filter(Boolean) as string[]
+    return [...new Set(values)].sort()
+  }, [ecards])
+
+  const uniqueSujets = useMemo(() => {
+    const values = ecards.map(c => c.topic).filter(Boolean) as string[]
+    return [...new Set(values)].sort()
+  }, [ecards])
+
+  const filteredEcards = useMemo(() => {
+    let result = ecards.filter((card) => {
+      const searchLower = searchTerm.toLowerCase()
+      const matchesSearch =
+        card.advertiser_name?.toLowerCase().includes(searchLower) ||
+        card.business_sector?.toLowerCase().includes(searchLower) ||
+        card.topic?.toLowerCase().includes(searchLower)
+
+      const matchesAnnonceur = filterAnnonceur === 'all' || card.advertiser_name === filterAnnonceur
+      const matchesSecteur = filterSecteur === 'all' || card.business_sector === filterSecteur
+      const matchesSujet = filterSujet === 'all' || card.topic === filterSujet
+      const matchesStatut = filterStatut === 'all' ||
+        (filterStatut === 'published' && card.is_published) ||
+        (filterStatut === 'unpublished' && !card.is_published)
+
+      return matchesSearch && matchesAnnonceur && matchesSecteur && matchesSujet && matchesStatut
+    })
+
+    if (sortColumn) {
+      result = [...result].sort((a, b) => {
+        let valA = a[sortColumn]
+        let valB = b[sortColumn]
+        if (valA == null) valA = ''
+        if (valB == null) valB = ''
+        if (typeof valA === 'boolean') { valA = valA ? 1 : 0; valB = (valB as boolean) ? 1 : 0 }
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return sortDirection === 'asc' ? valA - valB : valB - valA
+        }
+        const strA = String(valA).toLowerCase()
+        const strB = String(valB).toLowerCase()
+        if (strA < strB) return sortDirection === 'asc' ? -1 : 1
+        if (strA > strB) return sortDirection === 'asc' ? 1 : -1
+        return 0
+      })
+    }
+
+    return result
+  }, [ecards, searchTerm, filterAnnonceur, filterSecteur, filterSujet, filterStatut, sortColumn, sortDirection])
+
+  const SortIcon = ({ column }: { column: SortColumn }) => {
+    if (sortColumn !== column) return <ChevronUp className="w-3 h-3 text-gray-400 opacity-40" />
+    return sortDirection === 'asc'
+      ? <ChevronUp className="w-3 h-3 text-gold-600" />
+      : <ChevronDown className="w-3 h-3 text-gold-600" />
+  }
+
+  const resetFilters = () => {
+    setFilterAnnonceur('all')
+    setFilterSecteur('all')
+    setFilterSujet('all')
+    setFilterStatut('all')
+    setSortColumn(null)
+    setSearchTerm('')
+  }
+
+  const hasActiveFilters = filterAnnonceur !== 'all' || filterSecteur !== 'all' || filterSujet !== 'all' || filterStatut !== 'all'
 
   if (loading) {
     return (
@@ -87,27 +168,52 @@ export default function ECards() {
 
       {/* Search and Filter */}
       <div className="mb-6 space-y-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-3 text-gray-500" size={20} />
-          <input
-            type="text"
-            placeholder="Rechercher par nom, secteur, sujet..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-navy-800 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-gold"
-          />
-        </div>
-
         <div className="flex gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-3 text-gray-500" size={20} />
+            <input
+              type="text"
+              placeholder="Rechercher par nom, secteur, sujet..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-navy-800 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-gold"
+            />
+          </div>
           <select
             value={filterPublished}
             onChange={(e) => setFilterPublished(e.target.value)}
             className="px-4 py-2 bg-navy-800 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
           >
             <option value="all">Toutes</option>
-            <option value="published">Publiées</option>
-            <option value="unpublished">Non publiées</option>
+            <option value="published">Publi\u00e9es</option>
+            <option value="unpublished">Non publi\u00e9es</option>
           </select>
+        </div>
+
+        {/* Dropdown Filters */}
+        <div className="flex gap-3 flex-wrap items-center">
+          <select value={filterAnnonceur} onChange={(e) => setFilterAnnonceur(e.target.value)} className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
+            <option value="all">Annonceur: Tous</option>
+            {uniqueAnnonceurs.map(v => <option key={v} value={v}>{v}</option>)}
+          </select>
+          <select value={filterSecteur} onChange={(e) => setFilterSecteur(e.target.value)} className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
+            <option value="all">Secteur: Tous</option>
+            {uniqueSecteurs.map(v => <option key={v} value={v}>{v}</option>)}
+          </select>
+          <select value={filterSujet} onChange={(e) => setFilterSujet(e.target.value)} className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
+            <option value="all">Sujet: Tous</option>
+            {uniqueSujets.map(v => <option key={v} value={v}>{v}</option>)}
+          </select>
+          <select value={filterStatut} onChange={(e) => setFilterStatut(e.target.value)} className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
+            <option value="all">Statut: Tous</option>
+            <option value="published">Publi\u00e9e</option>
+            <option value="unpublished">Brouillon</option>
+          </select>
+          {hasActiveFilters && (
+            <button onClick={resetFilters} className="px-3 py-1.5 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors">
+              R\u00e9initialiser filtres
+            </button>
+          )}
         </div>
       </div>
 
@@ -115,33 +221,51 @@ export default function ECards() {
       <div className="bg-navy-800 rounded-lg border border-gray-200 overflow-hidden">
         {filteredEcards.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            Aucune e-card trouvée
+            Aucune e-card trouv\u00e9e
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-navy-700 border-b border-gray-300">
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
-                    Annonceur
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('advertiser_name')}>
+                    <div className="flex items-center gap-1">
+                      Annonceur
+                      <SortIcon column="advertiser_name" />
+                    </div>
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                     Type
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
-                    Secteur
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('business_sector')}>
+                    <div className="flex items-center gap-1">
+                      Secteur
+                      <SortIcon column="business_sector" />
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
-                    Sujet
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('topic')}>
+                    <div className="flex items-center gap-1">
+                      Sujet
+                      <SortIcon column="topic" />
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
-                    Vues
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('views_count')}>
+                    <div className="flex items-center gap-1">
+                      Vues
+                      <SortIcon column="views_count" />
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
-                    Likes
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('likes_count')}>
+                    <div className="flex items-center gap-1">
+                      Likes
+                      <SortIcon column="likes_count" />
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
-                    Statut
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('is_published')}>
+                    <div className="flex items-center gap-1">
+                      Statut
+                      <SortIcon column="is_published" />
+                    </div>
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                     Actions
@@ -152,7 +276,7 @@ export default function ECards() {
                 {filteredEcards.map((card) => (
                   <tr key={card.id} className="hover:bg-gray-100 transition-colors">
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {card.advertiser_name || '—'}
+                      {card.advertiser_name || '\u2014'}
                     </td>
                     <td className="px-6 py-4 text-sm text-center">
                       {card.video_url ? (
@@ -162,33 +286,27 @@ export default function ECards() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {card.business_sector || '—'}
+                      {card.business_sector || '\u2014'}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {card.topic || '—'}
+                      {card.topic || '\u2014'}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {card.views}
+                      {card.views_count || 0}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {card.likes}
+                      {card.likes_count || 0}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          card.is_published
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-200/30 text-gray-500'
-                        }`}
-                      >
-                        {card.is_published ? 'Publiée' : 'Brouillon'}
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${card.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+                        {card.is_published ? 'Publi\u00e9e' : 'Brouillon'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <div className="flex items-center gap-2">
                         <Link
                           to={`/ecards/${card.id}`}
-                          className="p-2 hover:bg-gray-200 rounded transition-colors text-blue-600 hover:text-blue-600"
+                          className="p-2 hover:bg-gray-200 rounded transition-colors text-blue-600 hover:text-blue-800"
                         >
                           <Edit2 size={18} />
                         </Link>
