@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react' 
+import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ECard } from '../lib/types'
@@ -295,7 +295,7 @@ export default function ECards() {
                       {card.likes || 0}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {card.score_avg > 0 ? card.score_avg.toFixed(1) : '-'}
+                      {(card.score_avg ?? 0) > 0 ? (card.score_avg ?? 0).toFixed(1) : '-'}
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${card.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
@@ -328,3 +328,4 @@ export default function ECards() {
     </div>
   )
 }
+ 
