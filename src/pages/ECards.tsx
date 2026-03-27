@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { ECard } from '../lib/types'
 import { Edit2, Trash2, Search, AlertCircle, Plus, Video, Link2, ChevronUp, ChevronDown } from 'lucide-react'
 
-type SortColumn = 'advertiser_name' | 'business_sector' | 'topic' | 'views' | 'likes' | 'is_published'
+type SortColumn = 'advertiser_name' | 'business_sector' | 'topic' | 'views' | 'likes' | 'score_avg' | 'is_published'
 type SortDirection = 'asc' | 'desc'
 
 export default function ECards() {
