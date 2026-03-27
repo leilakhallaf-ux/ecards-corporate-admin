@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ECard } from '../lib/types'
 import { Edit2, Trash2, Search, AlertCircle, Plus, Video, Link2, ChevronUp, ChevronDown } from 'lucide-react'
-
+ 
 type SortColumn = 'advertiser_name' | 'topic' | 'views' | 'likes' | 'score_avg' | 'is_published'
 type SortDirection = 'asc' | 'desc'
-
+ 
 export default function ECards() {
   const [ecards, setEcards] = useState<ECard[]>([])
   const [loading, setLoading] = useState(true)
@@ -19,11 +19,11 @@ export default function ECards() {
   const [filterSujet, setFilterSujet] = useState<string>('all')
   const [filterStatut, setFilterStatut] = useState<string>('all')
   const [filterType, setFilterType] = useState<string>('all')
-
+ 
   useEffect(() => {
     fetchECards()
   }, [filterPublished])
-
+ 
   const fetchECards = async () => {
     try {
       setLoading(true)
@@ -43,7 +43,7 @@ export default function ECards() {
       setLoading(false)
     }
   }
-
+ 
   const handleDelete = async (id: string) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette e-card ?')) return
     try {
@@ -55,7 +55,7 @@ export default function ECards() {
       setError('Erreur lors de la suppression')
     }
   }
-
+ 
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -64,24 +64,24 @@ export default function ECards() {
       setSortDirection('asc')
     }
   }
-
+ 
   const uniqueAnnonceurs = useMemo(() => {
     const values = ecards.map(c => c.advertiser_name).filter(Boolean) as string[]
     return [...new Set(values)].sort()
   }, [ecards])
-
+ 
   const uniqueSujets = useMemo(() => {
     const values = ecards.map(c => c.topic).filter(Boolean) as string[]
     return [...new Set(values)].sort()
   }, [ecards])
-
+ 
   const filteredEcards = useMemo(() => {
     let result = ecards.filter((card) => {
       const searchLower = searchTerm.toLowerCase()
       const matchesSearch =
         card.advertiser_name?.toLowerCase().includes(searchLower) ||
         card.topic?.toLowerCase().includes(searchLower)
-
+ 
       const matchesAnnonceur = filterAnnonceur === 'all' || card.advertiser_name === filterAnnonceur
       const matchesSujet = filterSujet === 'all' || card.topic === filterSujet
       const matchesStatut = filterStatut === 'all' ||
@@ -90,10 +90,10 @@ export default function ECards() {
       const matchesType = filterType === 'all' ||
         (filterType === 'video' && !!card.video_url) ||
         (filterType === 'link' && !card.video_url)
-
+ 
       return matchesSearch && matchesAnnonceur && matchesSujet && matchesStatut && matchesType
     })
-
+ 
     if (sortColumn) {
       result = [...result].sort((a, b) => {
         let valA = a[sortColumn]
@@ -115,14 +115,14 @@ export default function ECards() {
     }
     return result
   }, [ecards, searchTerm, filterAnnonceur, filterSujet, filterStatut, filterType, sortColumn, sortDirection])
-
+ 
   const SortIcon = ({ column }: { column: SortColumn }) => {
     if (sortColumn !== column) return <ChevronUp className="w-3 h-3 text-gray-400 opacity-40" />
     return sortDirection === 'asc'
       ? <ChevronUp className="w-3 h-3 text-gold-600" />
       : <ChevronDown className="w-3 h-3 text-gold-600" />
   }
-
+ 
   const resetFilters = () => {
     setFilterAnnonceur('all')
     setFilterSujet('all')
@@ -132,9 +132,9 @@ export default function ECards() {
     setSortColumn(null)
     setSearchTerm('')
   }
-
+ 
   const hasActiveFilters = filterAnnonceur !== 'all' || filterSujet !== 'all' || filterStatut !== 'all' || filterType !== 'all' || searchTerm !== ''
-
+ 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
@@ -142,7 +142,7 @@ export default function ECards() {
       </div>
     )
   }
-
+ 
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
@@ -154,14 +154,14 @@ export default function ECards() {
           Nouveau
         </Link>
       </div>
-
+ 
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg flex items-start gap-3">
           <AlertCircle size={20} className="text-red-600 mt-0.5 flex-shrink-0" />
           <p className="text-red-600 text-sm">{error}</p>
         </div>
       )}
-
+ 
       {/* Search and Filter */}
       <div className="mb-6 space-y-4">
         <div className="flex gap-4">
@@ -185,7 +185,7 @@ export default function ECards() {
             <option value="unpublished">Non publiées</option>
           </select>
         </div>
-
+ 
         {/* Dropdown Filters */}
         <div className="flex gap-3 flex-wrap items-center">
           <select value={filterAnnonceur} onChange={(e) => setFilterAnnonceur(e.target.value)}
@@ -193,27 +193,27 @@ export default function ECards() {
             <option value="all">Annonceur: Tous</option>
             {uniqueAnnonceurs.map(v => <option key={v} value={v}>{v}</option>)}
           </select>
-
+ 
           <select value={filterType} onChange={(e) => setFilterType(e.target.value)}
             className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
             <option value="all">Type: Tous</option>
             <option value="video">Vidéo</option>
             <option value="link">Lien</option>
           </select>
-
+ 
           <select value={filterSujet} onChange={(e) => setFilterSujet(e.target.value)}
             className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
             <option value="all">Millésime: Tous</option>
             {uniqueSujets.map(v => <option key={v} value={v}>{v}</option>)}
           </select>
-
+ 
           <select value={filterStatut} onChange={(e) => setFilterStatut(e.target.value)}
             className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
             <option value="all">Statut: Tous</option>
             <option value="published">Publiée</option>
             <option value="unpublished">Brouillon</option>
           </select>
-
+ 
           {hasActiveFilters && (
             <button onClick={resetFilters}
               className="px-3 py-1.5 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors">
@@ -222,7 +222,7 @@ export default function ECards() {
           )}
         </div>
       </div>
-
+ 
       {/* E-Cards Table */}
       <div className="bg-navy-800 rounded-lg border border-gray-200 overflow-hidden">
         {filteredEcards.length === 0 ? (
@@ -298,7 +298,7 @@ export default function ECards() {
                       {card.score_avg > 0 ? card.score_avg.toFixed(1) : '-'}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <span className=`px-3 py-1 rounded-full text-xs font-medium ${card.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${card.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
                         {card.is_published ? 'Publiée' : 'Brouillon'}
                       </span>
                     </td>
