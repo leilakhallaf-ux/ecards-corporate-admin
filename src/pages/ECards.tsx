@@ -272,6 +272,12 @@ export default function ECards() {
                       <SortIcon column="likes" />
                     </div>
                   </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('score_avg')}>
+                    <div className="flex items-center gap-1">
+                      Score
+                      <SortIcon column="score_avg" />
+                    </div>
+                  </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('is_published')}>
                     <div className="flex items-center gap-1">
                       Statut
@@ -307,6 +313,9 @@ export default function ECards() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {card.likes || 0}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {card.score_avg > 0 ? card.score_avg.toFixed(1) : '-'}
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${card.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
