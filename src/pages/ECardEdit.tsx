@@ -598,6 +598,32 @@ export default function ECardEdit() {
         </div>
       )}
 
+            {/* ===== SECTION: Statistiques (read-only) ===== */}
+      {!isNew && card && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
+          <h2 className={sectionTitleClass}>Statistiques</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-gray-50 rounded-lg p-4 text-center">
+              <p className="text-2xl font-bold text-gray-900">{card.views ?? 0}</p>
+              <p className="text-sm text-gray-500 mt-1">Vues</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-4 text-center">
+              <p className="text-2xl font-bold text-gray-900">{card.likes ?? 0}</p>
+              <p className="text-sm text-gray-500 mt-1">Likes</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-4 text-center">
+              <p className="text-2xl font-bold text-gold">
+                {card.score_avg && card.score_avg > 0 ? Number(card.score_avg).toFixed(1) : '-'}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">Score moyen</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-4 text-center">
+              <p className="text-2xl font-bold text-gray-900">{card.score_count ?? 0}</p>
+              <p className="text-sm text-gray-500 mt-1">Nb de votes</p>
+            </div>
+          </div>
+        </div>
+      )}
       {/* ===== SECTION: E-Card ===== */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
         <h2 className={sectionTitleClass}>E-Card</h2>
