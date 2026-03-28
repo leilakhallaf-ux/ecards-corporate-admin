@@ -38,6 +38,24 @@ export interface ECard {
     video_url: string | null
 }
 
+export interface ECardVariant {
+  id: string
+  ecard_id: string
+  label: string
+  url: string | null
+  variant_type: 'web' | 'mobile' | 'email' | 'anglaise' | 'autre'
+  language: string
+  sort_order: number
+  created_at: string
+}
+
+export const VARIANT_TYPES = [
+  { value: 'anglaise', label: 'Version anglaise' },
+  { value: 'mobile', label: 'Version mobile' },
+  { value: 'email', label: "E-mail d'alerte" },
+  { value: 'autre', label: 'Autre' },
+]
+
 export interface ECardSubmission {
   id: string
   advertiser_name: string
