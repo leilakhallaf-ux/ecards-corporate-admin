@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ECard } from '../lib/types'
-import { Edit2, Trash2, Search, AlertCircle, Plus, Video, Link2, ChevronUp, ChevronDown } from 'lucide-react'
+import { Edit2, Trash2, Search, AlertCircle, Plus, Video, Link2, ChevronUp, ChevronDown, GitBranch } from 'lucide-react'
 
 type SortColumn = 'advertiser_name' | 'topic' | 'views' | 'likes' | 'score_avg' | 'is_published'
 type SortDirection = 'asc' | 'desc'
@@ -19,10 +19,28 @@ export default function ECards() {
   const [filterSujet, setFilterSujet] = useState<string>('all')
   const [filterStatut, setFilterStatut] = useState<string>('all')
   const [filterType, setFilterType] = useState<string>('all')
+  const [variantCounts, setVariantCounts] = useState<Record<string, number>>({})
 
   useEffect(() => {
     fetchECards()
+    fetchVariantCounts()
   }, [filterPublished])
+
+  const fetchVariantCounts = async () => {
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('e_card_variants')
+        .select('ecard_id')
+      if (fetchError) throw fetchError
+      const counts: Record<string, number> = {}
+      data?.forEach(row => {
+        counts[row.ecard_id] = (counts[row.ecard_id] || 0) + 1
+      })
+      setVariantCounts(counts)
+    } catch (err) {
+      console.error('Error fetching variant counts:', err)
+    }
+  }
 
   const fetchECards = async () => {
     try {
@@ -45,7 +63,7 @@ export default function ECards() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette e-card ?')) return
+    if (!confirm('Ãtes-vous sÃ»r de vouloir supprimer cette e-card ?')) return
     try {
       const { error: deleteError } = await supabase.from('e_cards').delete().eq('id', id)
       if (deleteError) throw deleteError
@@ -167,12 +185,12 @@ export default function ECards() {
         </div>
       )}
 
-      {/* Tabs: Toutes / Liens / Vidéos */}
+      {/* Tabs: Toutes / Liens / VidÃ©os */}
       <div className="mb-6 flex gap-0 border-b border-gray-300">
         {([
           { key: 'all', label: 'Toutes', icon: null, count: countAll },
           { key: 'link', label: 'Liens', icon: <Link2 className="w-4 h-4" />, count: countLiens },
-          { key: 'video', label: 'Vidéos', icon: <Video className="w-4 h-4" />, count: countVideos },
+          { key: 'video', label: 'VidÃ©os', icon: <Video className="w-4 h-4" />, count: countVideos },
         ] as const).map(tab => (
           <button
             key={tab.key}
@@ -203,7 +221,7 @@ export default function ECards() {
             <Search className="absolute left-3 top-3 text-gray-500" size={20} />
             <input
               type="text"
-              placeholder="Rechercher par nom, millésime..."
+              placeholder="Rechercher par nom, millÃ©sime..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-navy-800 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-gold"
@@ -215,8 +233,8 @@ export default function ECards() {
             className="px-4 py-2 bg-navy-800 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
           >
             <option value="all">Toutes</option>
-            <option value="published">Publiées</option>
-            <option value="unpublished">Non publiées</option>
+            <option value="published">PubliÃ©es</option>
+            <option value="unpublished">Non publiÃ©es</option>
           </select>
         </div>
 
@@ -230,21 +248,21 @@ export default function ECards() {
 
           <select value={filterSujet} onChange={(e) => setFilterSujet(e.target.value)}
             className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
-            <option value="all">Millésime: Tous</option>
+            <option value="all">MillÃ©sime: Tous</option>
             {uniqueSujets.map(v => <option key={v} value={v}>{v}</option>)}
           </select>
 
           <select value={filterStatut} onChange={(e) => setFilterStatut(e.target.value)}
             className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
             <option value="all">Statut: Tous</option>
-            <option value="published">Publiée</option>
+            <option value="published">PubliÃ©e</option>
             <option value="unpublished">Brouillon</option>
           </select>
 
           {hasActiveFilters && (
             <button onClick={resetFilters}
               className="px-3 py-1.5 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors">
-              Réinitialiser filtres
+              RÃ©initialiser filtres
             </button>
           )}
         </div>
@@ -254,7 +272,7 @@ export default function ECards() {
       <div className="bg-navy-800 rounded-lg border border-gray-200 overflow-hidden">
         {filteredEcards.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            Aucune e-card trouvée
+            Aucune e-card trouvÃ©e
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -271,7 +289,7 @@ export default function ECards() {
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('topic')}>
                     <div className="flex items-center gap-1">
-                      Millésime <SortIcon column="topic" />
+                      MillÃ©sime <SortIcon column="topic" />
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('views')}>
@@ -295,6 +313,9 @@ export default function ECards() {
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
+                    Variantes
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                     Actions
                   </th>
                 </tr>
@@ -303,7 +324,7 @@ export default function ECards() {
                 {filteredEcards.map((card) => (
                   <tr key={card.id} className="hover:bg-gray-100 transition-colors">
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {card.advertiser_name || '—'}
+                      {card.advertiser_name || 'â'}
                     </td>
                     <td className="px-6 py-4 text-sm text-center">
                       {card.video_url ? (
@@ -313,7 +334,7 @@ export default function ECards() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {card.topic || '—'}
+                      {card.topic || 'â'}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {card.views || 0}
@@ -326,8 +347,18 @@ export default function ECards() {
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${card.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
-                        {card.is_published ? 'Publiée' : 'Brouillon'}
+                        {card.is_published ? 'PubliÃ©e' : 'Brouillon'}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-center">
+                      {(variantCounts[card.id] || 0) > 0 ? (
+                        <span className="inline-flex items-center gap-1 text-gold-strong">
+                          <GitBranch size={14} />
+                          <span className="text-xs font-semibold">{variantCounts[card.id]}</span>
+                        </span>
+                      ) : (
+                        <span className="text-gray-300">â</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <div className="flex items-center gap-2">
