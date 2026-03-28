@@ -5,12 +5,12 @@ import { ECard, ECardVariant, VARIANT_TYPES } from '../lib/types'
 import { AlertCircle, Save, ChevronLeft, X, Plus, Upload, Loader2, Film, Play, Maximize2, ChevronUp, ChevronDown, GitBranch, ExternalLink } from 'lucide-react'
 
 const LANGUAGES = [
-  { value: 'fr', label: 'FranÃ§ais' },
+  { value: 'fr', label: 'Français' },
   { value: 'en', label: 'English' },
   { value: 'de', label: 'Deutsch' },
-  { value: 'es', label: 'EspaÃ±ol' },
+  { value: 'es', label: 'Español' },
   { value: 'it', label: 'Italiano' },
-  { value: 'pt', label: 'PortuguÃªs' },
+  { value: 'pt', label: 'Português' },
   { value: 'nl', label: 'Nederlands' },
   { value: 'ja', label: 'æ¥æ¬èª' },
   { value: 'zh', label: 'ä¸­æ' },
@@ -21,7 +21,7 @@ const CARD_TYPES = [
   { value: 'invitation', label: 'Invitation' },
   { value: 'remerciement', label: 'Remerciement' },
   { value: 'anniversaire', label: 'Anniversaire' },
-  { value: 'evenement', label: 'ÃvÃ©nement' },
+  { value: 'evenement', label: 'Événement' },
   { value: 'promotion', label: 'Promotion' },
   { value: 'autre', label: 'Autre' },
 ]
@@ -277,7 +277,7 @@ export default function ECardEdit() {
 
   const validate = (): string | null => {
     if (!card?.advertiser_name?.trim()) return "L'annonceur est requis"
-    if (!card?.vintage) return 'Le millÃ©sime est requis'
+    if (!card?.vintage) return 'Le millésime est requis'
     if (!card?.card_type?.trim()) return 'Le type de carte est requis'
     if (!card?.language?.trim()) return 'La langue est requise'
     if (!card?.submitted_by?.trim()) return '"Soumise par" est requis'
@@ -408,7 +408,7 @@ export default function ECardEdit() {
   if (!card) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600">E-card non trouvÃ©e</p>
+        <p className="text-red-600">E-card non trouvée</p>
       </div>
     )
   }
@@ -431,7 +431,7 @@ export default function ECardEdit() {
       </button>
 
       <h1 className="text-2xl font-bold text-gray-900 mb-6">
-        {isNew ? 'Nouvelle E-Card' : 'Ãditer E-Card'}
+        {isNew ? 'Nouvelle E-Card' : 'Éditer E-Card'}
       </h1>
 
       {error && (
@@ -466,12 +466,12 @@ export default function ECardEdit() {
             />
           </div>
           <div className="md:col-span-1">
-            <label className={labelClass}>Secteur d'activitÃ© (optionnel)</label>
+            <label className={labelClass}>Secteur d'activité (optionnel)</label>
             <input
               type="text"
               value={card.business_sector || ''}
               onChange={(e) => handleInputChange('business_sector', e.target.value)}
-              placeholder="Secteur d'activitÃ© (optionnel)"
+              placeholder="Secteur d'activité (optionnel)"
               className={inputClass}
             />
           </div>
@@ -570,7 +570,7 @@ export default function ECardEdit() {
 
         {/* Video upload & preview */}
         <div className="mt-5">
-          <label className={labelClass}>VidÃ©o (optionnel)</label>
+          <label className={labelClass}>Vidéo (optionnel)</label>
           <input
             ref={videoInputRef}
             type="file"
@@ -593,7 +593,7 @@ export default function ECardEdit() {
               disabled={uploadingVideo}
               className="w-24 h-16 bg-gray-900 border border-gray-300 rounded-lg flex items-center justify-center text-gray-400 flex-shrink-0 hover:border-gold cursor-pointer transition-colors disabled:opacity-50 relative overflow-hidden group"
               title={
-                card.video_url ? 'Cliquer pour prÃ©visualiser' : 'Cliquer pour uploader'
+                card.video_url ? 'Cliquer pour prévisualiser' : 'Cliquer pour uploader'
               }
             >
               {uploadingVideo ? (
@@ -616,7 +616,7 @@ export default function ECardEdit() {
               ) : (
                 <div className="flex flex-col items-center gap-0.5">
                   <Film size={20} />
-                  <span className="text-[9px]">VidÃ©o</span>
+                  <span className="text-[9px]">Vidéo</span>
                 </div>
               )}
             </button>
@@ -626,7 +626,7 @@ export default function ECardEdit() {
                   type="url"
                   value={card.video_url || ''}
                   onChange={(e) => handleInputChange('video_url', e.target.value)}
-                  placeholder="URL vidÃ©o ...ou uploader un fichier"
+                  placeholder="URL vidéo ...ou uploader un fichier"
                   className={`flex-1 ${inputClass}`}
                 />
                 {card.video_url && (
@@ -634,7 +634,7 @@ export default function ECardEdit() {
                     type="button"
                     onClick={() => setShowVideoLightbox(true)}
                     className="px-3 py-2 bg-gray-900 text-gold border border-gold rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-1.5 text-sm font-medium"
-                    title="PrÃ©visualiser la vidÃ©o"
+                    title="Prévisualiser la vidéo"
                   >
                     <Play size={14} fill="currentColor" />
                     Voir
@@ -661,7 +661,7 @@ export default function ECardEdit() {
                     type="button"
                     onClick={() => handleInputChange('video_url', '')}
                     className="text-red-400 hover:text-red-600 transition-colors"
-                    title="Supprimer la vidÃ©o"
+                    title="Supprimer la vidéo"
                   >
                     <X size={12} />
                   </button>
@@ -694,7 +694,7 @@ export default function ECardEdit() {
               className="w-full rounded-lg shadow-2xl"
               src={card.video_url}
             >
-              Votre navigateur ne supporte pas la lecture vidÃ©o.
+              Votre navigateur ne supporte pas la lecture vidéo.
             </video>
             <div className="mt-3 flex items-center justify-between">
               <span className="text-gray-400 text-xs">
@@ -745,14 +745,14 @@ export default function ECardEdit() {
         <h2 className={sectionTitleClass}>E-Card</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label className={labelClass}>MillÃ©sime *</label>
+            <label className={labelClass}>Millésime *</label>
             <input
               type="number"
               value={card.vintage || ''}
               onChange={(e) =>
                 handleInputChange('vintage', parseInt(e.target.value) || null)
               }
-              placeholder="MillÃ©sime * (ex: 2023)"
+              placeholder="Millésime * (ex: 2023)"
               className={inputClass}
             />
           </div>
@@ -797,12 +797,12 @@ export default function ECardEdit() {
             />
           </div>
           <div>
-            <label className={labelClass}>ThÃ¨me (optionnel)</label>
+            <label className={labelClass}>Thème (optionnel)</label>
             <input
               type="text"
               value={card.topic || ''}
               onChange={(e) => handleInputChange('topic', e.target.value)}
-              placeholder="ThÃ¨me (optionnel)"
+              placeholder="Thème (optionnel)"
               className={inputClass}
             />
           </div>
@@ -889,22 +889,22 @@ export default function ECardEdit() {
             />
           </div>
           <div>
-            <label className={labelClass}>Message-clÃ©</label>
+            <label className={labelClass}>Message-clé</label>
             <input
               type="text"
               value={card.key_message || ''}
               onChange={(e) => handleInputChange('key_message', e.target.value)}
-              placeholder="Message-clÃ©"
+              placeholder="Message-clé"
               className={inputClass}
             />
           </div>
           <div>
-            <label className={labelClass}>TonalitÃ©</label>
+            <label className={labelClass}>Tonalité</label>
             <input
               type="text"
               value={card.tone || ''}
               onChange={(e) => handleInputChange('tone', e.target.value)}
-              placeholder="TonalitÃ©"
+              placeholder="Tonalité"
               className={inputClass}
             />
           </div>
@@ -927,12 +927,12 @@ export default function ECardEdit() {
             />
           </div>
           <div>
-            <label className={labelClass}>En qualitÃ© de (optionnel)</label>
+            <label className={labelClass}>En qualité de (optionnel)</label>
             <input
               type="text"
               value={card.submitted_capacity || ''}
               onChange={(e) => handleInputChange('submitted_capacity', e.target.value)}
-              placeholder="En qualitÃ© de (optionnel)"
+              placeholder="En qualité de (optionnel)"
               className={inputClass}
             />
           </div>
@@ -951,7 +951,7 @@ export default function ECardEdit() {
         {/* Extra credits with move up/down buttons */}
         <div className="mt-5">
           <label className="block text-sm text-gray-500 mb-2">
-            CrÃ©dits supplÃ©mentaires (optionnel)
+            Crédits supplémentaires (optionnel)
           </label>
           {extraCredits.map((credit, index) => (
             <div key={index} className="flex gap-2 mb-2 items-center">
@@ -979,7 +979,7 @@ export default function ECardEdit() {
                 type="text"
                 value={credit.role}
                 onChange={(e) => handleCreditChange(index, 'role', e.target.value)}
-                placeholder="RÃ´le"
+                placeholder="Rôle"
                 className={`flex-1 ${inputClass}`}
               />
               <input
@@ -1002,7 +1002,7 @@ export default function ECardEdit() {
             onClick={handleAddCredit}
             className="text-gold hover:text-gold-strong text-sm flex items-center gap-1 mt-1 transition-colors"
           >
-            <Plus size={16} /> Ajouter un crÃ©dit
+            <Plus size={16} /> Ajouter un crédit
           </button>
         </div>
       </div>
@@ -1084,7 +1084,7 @@ export default function ECardEdit() {
               </div>
               {nv.variant_type === 'autre' && (
                 <div>
-                  <label className={labelClass}>Nom personnalisÃ© *</label>
+                  <label className={labelClass}>Nom personnalisé *</label>
                   <input
                     type="text"
                     value={nv.custom_label}
@@ -1140,7 +1140,7 @@ export default function ECardEdit() {
               onChange={(e) => handleInputChange('is_published', e.target.checked)}
               className="w-4 h-4 rounded border-gray-300 text-gold focus:ring-gold"
             />
-            <span className="text-sm text-gray-600">PubliÃ©e</span>
+            <span className="text-sm text-gray-600">Publiée</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -1162,7 +1162,7 @@ export default function ECardEdit() {
           className="bg-gold hover:bg-gold-strong disabled:bg-gray-300 text-white px-8 py-2.5 rounded-lg flex items-center gap-2 transition-colors font-medium"
         >
           <Save size={20} />
-          {saving ? 'Enregistrement...' : isNew ? 'CrÃ©er' : 'Enregistrer'}
+          {saving ? 'Enregistrement...' : isNew ? 'Créer' : 'Enregistrer'}
         </button>
         <button
           onClick={() => navigate('/ecards')}
