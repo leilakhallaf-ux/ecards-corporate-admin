@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ECard } from '../lib/types'
 import { Edit2, Trash2, Search, AlertCircle, Plus, Video, Link2, ChevronUp, ChevronDown } from 'lucide-react'
- 
+
 type SortColumn = 'advertiser_name' | 'topic' | 'views' | 'likes' | 'score_avg' | 'is_published'
 type SortDirection = 'asc' | 'desc'
- 
+
 export default function ECards() {
   const [ecards, setEcards] = useState<ECard[]>([])
   const [loading, setLoading] = useState(true)
@@ -19,11 +19,11 @@ export default function ECards() {
   const [filterSujet, setFilterSujet] = useState<string>('all')
   const [filterStatut, setFilterStatut] = useState<string>('all')
   const [filterType, setFilterType] = useState<string>('all')
- 
+
   useEffect(() => {
     fetchECards()
   }, [filterPublished])
- 
+
   const fetchECards = async () => {
     try {
       setLoading(true)
@@ -43,7 +43,7 @@ export default function ECards() {
       setLoading(false)
     }
   }
- 
+
   const handleDelete = async (id: string) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette e-card ?')) return
     try {
@@ -55,7 +55,7 @@ export default function ECards() {
       setError('Erreur lors de la suppression')
     }
   }
- 
+
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -64,24 +64,29 @@ export default function ECards() {
       setSortDirection('asc')
     }
   }
- 
+
   const uniqueAnnonceurs = useMemo(() => {
     const values = ecards.map(c => c.advertiser_name).filter(Boolean) as string[]
     return [...new Set(values)].sort()
   }, [ecards])
- 
+
   const uniqueSujets = useMemo(() => {
     const values = ecards.map(c => c.topic).filter(Boolean) as string[]
     return [...new Set(values)].sort()
   }, [ecards])
- 
+
+  // Counts for tabs (computed from full ecards list, before other filters)
+  const countAll = ecards.length
+  const countLiens = ecards.filter(c => !c.video_url).length
+  const countVideos = ecards.filter(c => !!c.video_url).length
+
   const filteredEcards = useMemo(() => {
     let result = ecards.filter((card) => {
       const searchLower = searchTerm.toLowerCase()
       const matchesSearch =
         card.advertiser_name?.toLowerCase().includes(searchLower) ||
         card.topic?.toLowerCase().includes(searchLower)
- 
+
       const matchesAnnonceur = filterAnnonceur === 'all' || card.advertiser_name === filterAnnonceur
       const matchesSujet = filterSujet === 'all' || card.topic === filterSujet
       const matchesStatut = filterStatut === 'all' ||
@@ -90,10 +95,10 @@ export default function ECards() {
       const matchesType = filterType === 'all' ||
         (filterType === 'video' && !!card.video_url) ||
         (filterType === 'link' && !card.video_url)
- 
+
       return matchesSearch && matchesAnnonceur && matchesSujet && matchesStatut && matchesType
     })
- 
+
     if (sortColumn) {
       result = [...result].sort((a, b) => {
         let valA = a[sortColumn]
@@ -115,14 +120,14 @@ export default function ECards() {
     }
     return result
   }, [ecards, searchTerm, filterAnnonceur, filterSujet, filterStatut, filterType, sortColumn, sortDirection])
- 
+
   const SortIcon = ({ column }: { column: SortColumn }) => {
     if (sortColumn !== column) return <ChevronUp className="w-3 h-3 text-gray-400 opacity-40" />
     return sortDirection === 'asc'
       ? <ChevronUp className="w-3 h-3 text-gold-600" />
       : <ChevronDown className="w-3 h-3 text-gold-600" />
   }
- 
+
   const resetFilters = () => {
     setFilterAnnonceur('all')
     setFilterSujet('all')
@@ -132,9 +137,9 @@ export default function ECards() {
     setSortColumn(null)
     setSearchTerm('')
   }
- 
-  const hasActiveFilters = filterAnnonceur !== 'all' || filterSujet !== 'all' || filterStatut !== 'all' || filterType !== 'all' || searchTerm !== ''
- 
+
+  const hasActiveFilters = filterAnnonceur !== 'all' || filterSujet !== 'all' || filterStatut !== 'all' || searchTerm !== ''
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
@@ -142,7 +147,7 @@ export default function ECards() {
       </div>
     )
   }
- 
+
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
@@ -154,15 +159,44 @@ export default function ECards() {
           Nouveau
         </Link>
       </div>
- 
+
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg flex items-start gap-3">
           <AlertCircle size={20} className="text-red-600 mt-0.5 flex-shrink-0" />
           <p className="text-red-600 text-sm">{error}</p>
         </div>
       )}
- 
-      {/* Search and Filter */}
+
+      {/* Tabs: Toutes / Liens / Vidéos */}
+      <div className="mb-6 flex gap-0 border-b border-gray-300">
+        {([
+          { key: 'all', label: 'Toutes', icon: null, count: countAll },
+          { key: 'link', label: 'Liens', icon: <Link2 className="w-4 h-4" />, count: countLiens },
+          { key: 'video', label: 'Vidéos', icon: <Video className="w-4 h-4" />, count: countVideos },
+        ] as const).map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setFilterType(tab.key)}
+            className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold transition-colors border-b-2 -mb-px ${
+              filterType === tab.key
+                ? 'border-gold text-gold-strong'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            {tab.icon}
+            {tab.label}
+            <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${
+              filterType === tab.key
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'bg-gray-200 text-gray-500'
+            }`}>
+              {tab.count}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* Search and Filters */}
       <div className="mb-6 space-y-4">
         <div className="flex gap-4">
           <div className="relative flex-1">
@@ -185,7 +219,7 @@ export default function ECards() {
             <option value="unpublished">Non publiées</option>
           </select>
         </div>
- 
+
         {/* Dropdown Filters */}
         <div className="flex gap-3 flex-wrap items-center">
           <select value={filterAnnonceur} onChange={(e) => setFilterAnnonceur(e.target.value)}
@@ -193,27 +227,20 @@ export default function ECards() {
             <option value="all">Annonceur: Tous</option>
             {uniqueAnnonceurs.map(v => <option key={v} value={v}>{v}</option>)}
           </select>
- 
-          <select value={filterType} onChange={(e) => setFilterType(e.target.value)}
-            className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
-            <option value="all">Type: Tous</option>
-            <option value="video">Vidéo</option>
-            <option value="link">Lien</option>
-          </select>
- 
+
           <select value={filterSujet} onChange={(e) => setFilterSujet(e.target.value)}
             className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
             <option value="all">Millésime: Tous</option>
             {uniqueSujets.map(v => <option key={v} value={v}>{v}</option>)}
           </select>
- 
+
           <select value={filterStatut} onChange={(e) => setFilterStatut(e.target.value)}
             className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
             <option value="all">Statut: Tous</option>
             <option value="published">Publiée</option>
             <option value="unpublished">Brouillon</option>
           </select>
- 
+
           {hasActiveFilters && (
             <button onClick={resetFilters}
               className="px-3 py-1.5 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors">
@@ -222,7 +249,7 @@ export default function ECards() {
           )}
         </div>
       </div>
- 
+
       {/* E-Cards Table */}
       <div className="bg-navy-800 rounded-lg border border-gray-200 overflow-hidden">
         {filteredEcards.length === 0 ? (
@@ -328,4 +355,3 @@ export default function ECards() {
     </div>
   )
 }
- 
