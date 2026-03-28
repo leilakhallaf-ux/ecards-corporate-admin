@@ -1,19 +1,19 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { ECard } from '../lib/types'
-import { AlertCircle, Save, ChevronLeft, X, Plus, Upload, Loader2, Film, Play, Maximize2, ChevronUp, ChevronDown } from 'lucide-react'
+import { ECard, ECardVariant, VARIANT_TYPES } from '../lib/types'
+import { AlertCircle, Save, ChevronLeft, X, Plus, Upload, Loader2, Film, Play, Maximize2, ChevronUp, ChevronDown, GitBranch, ExternalLink } from 'lucide-react'
 
 const LANGUAGES = [
-  { value: 'fr', label: 'Français' },
+  { value: 'fr', label: 'FranÃ§ais' },
   { value: 'en', label: 'English' },
   { value: 'de', label: 'Deutsch' },
-  { value: 'es', label: 'Español' },
+  { value: 'es', label: 'EspaÃ±ol' },
   { value: 'it', label: 'Italiano' },
-  { value: 'pt', label: 'Português' },
+  { value: 'pt', label: 'PortuguÃªs' },
   { value: 'nl', label: 'Nederlands' },
-  { value: 'ja', label: '日本語' },
-  { value: 'zh', label: '中文' },
+  { value: 'ja', label: 'æ¥æ¬èª' },
+  { value: 'zh', label: 'ä¸­æ' },
 ]
 
 const CARD_TYPES = [
@@ -21,7 +21,7 @@ const CARD_TYPES = [
   { value: 'invitation', label: 'Invitation' },
   { value: 'remerciement', label: 'Remerciement' },
   { value: 'anniversaire', label: 'Anniversaire' },
-  { value: 'evenement', label: 'Événement' },
+  { value: 'evenement', label: 'ÃvÃ©nement' },
   { value: 'promotion', label: 'Promotion' },
   { value: 'autre', label: 'Autre' },
 ]
@@ -69,6 +69,10 @@ export default function ECardEdit() {
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const [uploadingVideo, setUploadingVideo] = useState(false)
   const [showVideoLightbox, setShowVideoLightbox] = useState(false)
+  const [variants, setVariants] = useState<ECardVariant[]>([])
+  const [newVariants, setNewVariants] = useState<Array<{ label: string; url: string; variant_type: string; language: string; custom_label: string }>>([])
+  const [loadingVariants, setLoadingVariants] = useState(false)
+  const [deletingVariantId, setDeletingVariantId] = useState<string | null>(null)
   const thumbnailInputRef = useRef<HTMLInputElement>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
@@ -76,8 +80,78 @@ export default function ECardEdit() {
   useEffect(() => {
     if (!isNew) {
       fetchCard()
+      fetchVariants()
     }
   }, [id])
+
+  const fetchVariants = async () => {
+    if (!id || isNew) return
+    setLoadingVariants(true)
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('e_card_variants')
+        .select('*')
+        .eq('ecard_id', id)
+        .order('sort_order', { ascending: true })
+      if (fetchError) throw fetchError
+      setVariants(data || [])
+    } catch (err) {
+      console.error('Error fetching variants:', err)
+    } finally {
+      setLoadingVariants(false)
+    }
+  }
+
+  const handleAddNewVariant = () => {
+    setNewVariants([...newVariants, { label: '', url: '', variant_type: 'anglaise', language: 'EN', custom_label: '' }])
+  }
+
+  const handleNewVariantChange = (index: number, field: string, value: string) => {
+    const updated = [...newVariants]
+    updated[index] = { ...updated[index], [field]: value }
+    // Auto-set label based on type
+    if (field === 'variant_type') {
+      const typeLabel = VARIANT_TYPES.find(t => t.value === value)?.label || ''
+      if (value !== 'autre') {
+        updated[index].label = typeLabel
+        updated[index].custom_label = ''
+      } else {
+        updated[index].label = ''
+      }
+      // Auto-set language
+      if (value === 'anglaise') {
+        updated[index].language = 'EN'
+      } else {
+        updated[index].language = 'FR'
+      }
+    }
+    if (field === 'custom_label') {
+      updated[index].label = value
+    }
+    setNewVariants(updated)
+  }
+
+  const handleRemoveNewVariant = (index: number) => {
+    setNewVariants(newVariants.filter((_, i) => i !== index))
+  }
+
+  const handleDeleteVariant = async (variantId: string) => {
+    if (!confirm('Supprimer cette variante ?')) return
+    setDeletingVariantId(variantId)
+    try {
+      const { error: deleteError } = await supabase
+        .from('e_card_variants')
+        .delete()
+        .eq('id', variantId)
+      if (deleteError) throw deleteError
+      setVariants(variants.filter(v => v.id !== variantId))
+    } catch (err) {
+      console.error('Error deleting variant:', err)
+      setError('Erreur lors de la suppression de la variante')
+    } finally {
+      setDeletingVariantId(null)
+    }
+  }
 
   const fetchCard = async () => {
     try {
@@ -203,7 +277,7 @@ export default function ECardEdit() {
 
   const validate = (): string | null => {
     if (!card?.advertiser_name?.trim()) return "L'annonceur est requis"
-    if (!card?.vintage) return 'Le millésime est requis'
+    if (!card?.vintage) return 'Le millÃ©sime est requis'
     if (!card?.card_type?.trim()) return 'Le type de carte est requis'
     if (!card?.language?.trim()) return 'La langue est requise'
     if (!card?.submitted_by?.trim()) return '"Soumise par" est requis'
@@ -259,10 +333,32 @@ export default function ECardEdit() {
       }
 
       if (isNew) {
-        const { error: insertError } = await supabase
+        const { data: insertedData, error: insertError } = await supabase
           .from('e_cards')
           .insert({ ...cardData, created_at: new Date().toISOString() })
+          .select()
         if (insertError) throw insertError
+
+        // Save new variants for newly created card
+        if (insertedData && insertedData[0] && newVariants.length > 0) {
+          const masterId = insertedData[0].id
+          const variantsToInsert = newVariants
+            .filter(v => v.label.trim() && v.url.trim())
+            .map((v, i) => ({
+              ecard_id: masterId,
+              label: v.label.trim(),
+              url: v.url.trim(),
+              variant_type: v.variant_type,
+              language: v.language || 'FR',
+              sort_order: i,
+            }))
+          if (variantsToInsert.length > 0) {
+            const { error: variantError } = await supabase
+              .from('e_card_variants')
+              .insert(variantsToInsert)
+            if (variantError) console.error('Error inserting variants:', variantError)
+          }
+        }
       } else {
         const { error: updateError } = await supabase
           .from('e_cards')
@@ -270,6 +366,26 @@ export default function ECardEdit() {
           .eq('id', id)
 
         if (updateError) throw updateError
+
+        // Save new variants for existing card
+        if (newVariants.length > 0) {
+          const variantsToInsert = newVariants
+            .filter(v => v.label.trim() && v.url.trim())
+            .map((v, i) => ({
+              ecard_id: id,
+              label: v.label.trim(),
+              url: v.url.trim(),
+              variant_type: v.variant_type,
+              language: v.language || 'FR',
+              sort_order: variants.length + i,
+            }))
+          if (variantsToInsert.length > 0) {
+            const { error: variantError } = await supabase
+              .from('e_card_variants')
+              .insert(variantsToInsert)
+            if (variantError) console.error('Error inserting variants:', variantError)
+          }
+        }
       }
 
       navigate('/ecards')
@@ -292,7 +408,7 @@ export default function ECardEdit() {
   if (!card) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600">E-card non trouvée</p>
+        <p className="text-red-600">E-card non trouvÃ©e</p>
       </div>
     )
   }
@@ -315,7 +431,7 @@ export default function ECardEdit() {
       </button>
 
       <h1 className="text-2xl font-bold text-gray-900 mb-6">
-        {isNew ? 'Nouvelle E-Card' : 'Éditer E-Card'}
+        {isNew ? 'Nouvelle E-Card' : 'Ãditer E-Card'}
       </h1>
 
       {error && (
@@ -350,12 +466,12 @@ export default function ECardEdit() {
             />
           </div>
           <div className="md:col-span-1">
-            <label className={labelClass}>Secteur d'activité (optionnel)</label>
+            <label className={labelClass}>Secteur d'activitÃ© (optionnel)</label>
             <input
               type="text"
               value={card.business_sector || ''}
               onChange={(e) => handleInputChange('business_sector', e.target.value)}
-              placeholder="Secteur d'activité (optionnel)"
+              placeholder="Secteur d'activitÃ© (optionnel)"
               className={inputClass}
             />
           </div>
@@ -454,7 +570,7 @@ export default function ECardEdit() {
 
         {/* Video upload & preview */}
         <div className="mt-5">
-          <label className={labelClass}>Vidéo (optionnel)</label>
+          <label className={labelClass}>VidÃ©o (optionnel)</label>
           <input
             ref={videoInputRef}
             type="file"
@@ -477,7 +593,7 @@ export default function ECardEdit() {
               disabled={uploadingVideo}
               className="w-24 h-16 bg-gray-900 border border-gray-300 rounded-lg flex items-center justify-center text-gray-400 flex-shrink-0 hover:border-gold cursor-pointer transition-colors disabled:opacity-50 relative overflow-hidden group"
               title={
-                card.video_url ? 'Cliquer pour prévisualiser' : 'Cliquer pour uploader'
+                card.video_url ? 'Cliquer pour prÃ©visualiser' : 'Cliquer pour uploader'
               }
             >
               {uploadingVideo ? (
@@ -500,7 +616,7 @@ export default function ECardEdit() {
               ) : (
                 <div className="flex flex-col items-center gap-0.5">
                   <Film size={20} />
-                  <span className="text-[9px]">Vidéo</span>
+                  <span className="text-[9px]">VidÃ©o</span>
                 </div>
               )}
             </button>
@@ -510,7 +626,7 @@ export default function ECardEdit() {
                   type="url"
                   value={card.video_url || ''}
                   onChange={(e) => handleInputChange('video_url', e.target.value)}
-                  placeholder="URL vidéo ...ou uploader un fichier"
+                  placeholder="URL vidÃ©o ...ou uploader un fichier"
                   className={`flex-1 ${inputClass}`}
                 />
                 {card.video_url && (
@@ -518,7 +634,7 @@ export default function ECardEdit() {
                     type="button"
                     onClick={() => setShowVideoLightbox(true)}
                     className="px-3 py-2 bg-gray-900 text-gold border border-gold rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-1.5 text-sm font-medium"
-                    title="Prévisualiser la vidéo"
+                    title="PrÃ©visualiser la vidÃ©o"
                   >
                     <Play size={14} fill="currentColor" />
                     Voir
@@ -545,7 +661,7 @@ export default function ECardEdit() {
                     type="button"
                     onClick={() => handleInputChange('video_url', '')}
                     className="text-red-400 hover:text-red-600 transition-colors"
-                    title="Supprimer la vidéo"
+                    title="Supprimer la vidÃ©o"
                   >
                     <X size={12} />
                   </button>
@@ -578,7 +694,7 @@ export default function ECardEdit() {
               className="w-full rounded-lg shadow-2xl"
               src={card.video_url}
             >
-              Votre navigateur ne supporte pas la lecture vidéo.
+              Votre navigateur ne supporte pas la lecture vidÃ©o.
             </video>
             <div className="mt-3 flex items-center justify-between">
               <span className="text-gray-400 text-xs">
@@ -629,14 +745,14 @@ export default function ECardEdit() {
         <h2 className={sectionTitleClass}>E-Card</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label className={labelClass}>Millésime *</label>
+            <label className={labelClass}>MillÃ©sime *</label>
             <input
               type="number"
               value={card.vintage || ''}
               onChange={(e) =>
                 handleInputChange('vintage', parseInt(e.target.value) || null)
               }
-              placeholder="Millésime * (ex: 2023)"
+              placeholder="MillÃ©sime * (ex: 2023)"
               className={inputClass}
             />
           </div>
@@ -681,12 +797,12 @@ export default function ECardEdit() {
             />
           </div>
           <div>
-            <label className={labelClass}>Thème (optionnel)</label>
+            <label className={labelClass}>ThÃ¨me (optionnel)</label>
             <input
               type="text"
               value={card.topic || ''}
               onChange={(e) => handleInputChange('topic', e.target.value)}
-              placeholder="Thème (optionnel)"
+              placeholder="ThÃ¨me (optionnel)"
               className={inputClass}
             />
           </div>
@@ -773,22 +889,22 @@ export default function ECardEdit() {
             />
           </div>
           <div>
-            <label className={labelClass}>Message-clé</label>
+            <label className={labelClass}>Message-clÃ©</label>
             <input
               type="text"
               value={card.key_message || ''}
               onChange={(e) => handleInputChange('key_message', e.target.value)}
-              placeholder="Message-clé"
+              placeholder="Message-clÃ©"
               className={inputClass}
             />
           </div>
           <div>
-            <label className={labelClass}>Tonalité</label>
+            <label className={labelClass}>TonalitÃ©</label>
             <input
               type="text"
               value={card.tone || ''}
               onChange={(e) => handleInputChange('tone', e.target.value)}
-              placeholder="Tonalité"
+              placeholder="TonalitÃ©"
               className={inputClass}
             />
           </div>
@@ -811,12 +927,12 @@ export default function ECardEdit() {
             />
           </div>
           <div>
-            <label className={labelClass}>En qualité de (optionnel)</label>
+            <label className={labelClass}>En qualitÃ© de (optionnel)</label>
             <input
               type="text"
               value={card.submitted_capacity || ''}
               onChange={(e) => handleInputChange('submitted_capacity', e.target.value)}
-              placeholder="En qualité de (optionnel)"
+              placeholder="En qualitÃ© de (optionnel)"
               className={inputClass}
             />
           </div>
@@ -835,7 +951,7 @@ export default function ECardEdit() {
         {/* Extra credits with move up/down buttons */}
         <div className="mt-5">
           <label className="block text-sm text-gray-500 mb-2">
-            Crédits supplémentaires (optionnel)
+            CrÃ©dits supplÃ©mentaires (optionnel)
           </label>
           {extraCredits.map((credit, index) => (
             <div key={index} className="flex gap-2 mb-2 items-center">
@@ -863,7 +979,7 @@ export default function ECardEdit() {
                 type="text"
                 value={credit.role}
                 onChange={(e) => handleCreditChange(index, 'role', e.target.value)}
-                placeholder="Rôle"
+                placeholder="RÃ´le"
                 className={`flex-1 ${inputClass}`}
               />
               <input
@@ -886,9 +1002,119 @@ export default function ECardEdit() {
             onClick={handleAddCredit}
             className="text-gold hover:text-gold-strong text-sm flex items-center gap-1 mt-1 transition-colors"
           >
-            <Plus size={16} /> Ajouter un crédit
+            <Plus size={16} /> Ajouter un crÃ©dit
           </button>
         </div>
+      </div>
+
+      {/* ===== SECTION: Variantes ===== */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <GitBranch size={20} className="text-gold" />
+          <h2 className={sectionTitleClass + ' !mb-0'}>Variantes</h2>
+          <span className="text-xs bg-gold/20 text-gold-strong px-2 py-0.5 rounded-full font-medium ml-2">
+            {variants.length + newVariants.length}
+          </span>
+        </div>
+
+        {/* Existing variants */}
+        {loadingVariants ? (
+          <div className="text-gray-400 text-sm py-4">Chargement des variantes...</div>
+        ) : variants.length > 0 ? (
+          <div className="space-y-2 mb-4">
+            {variants.map((v) => (
+              <div key={v.id} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+                <span className="text-xs font-semibold text-white bg-gold px-2 py-0.5 rounded uppercase">
+                  {VARIANT_TYPES.find(t => t.value === v.variant_type)?.label || v.variant_type}
+                </span>
+                <span className="text-sm text-gray-700 font-medium flex-1 truncate" title={v.label}>
+                  {v.label}
+                </span>
+                {v.url && (
+                  <a
+                    href={v.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-700 transition-colors"
+                    title="Ouvrir le lien"
+                  >
+                    <ExternalLink size={16} />
+                  </a>
+                )}
+                <span className="text-xs text-gray-400">{v.language}</span>
+                <button
+                  onClick={() => handleDeleteVariant(v.id)}
+                  disabled={deletingVariantId === v.id}
+                  className="p-1 text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                  title="Supprimer"
+                >
+                  {deletingVariantId === v.id ? <Loader2 size={16} className="animate-spin" /> : <X size={16} />}
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : !isNew ? (
+          <p className="text-gray-400 text-sm mb-4">Aucune variante pour cette e-card.</p>
+        ) : null}
+
+        {/* New variants being added */}
+        {newVariants.map((nv, index) => (
+          <div key={`new-${index}`} className="border border-dashed border-gold/50 bg-gold/5 rounded-lg p-4 mb-3">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-semibold text-gold">Nouvelle variante</span>
+              <button
+                onClick={() => handleRemoveNewVariant(index)}
+                className="text-red-400 hover:text-red-600 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className={labelClass}>Type de variante *</label>
+                <select
+                  value={nv.variant_type}
+                  onChange={(e) => handleNewVariantChange(index, 'variant_type', e.target.value)}
+                  className={selectClass}
+                >
+                  {VARIANT_TYPES.map(t => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+              </div>
+              {nv.variant_type === 'autre' && (
+                <div>
+                  <label className={labelClass}>Nom personnalisÃ© *</label>
+                  <input
+                    type="text"
+                    value={nv.custom_label}
+                    onChange={(e) => handleNewVariantChange(index, 'custom_label', e.target.value)}
+                    placeholder="Ex: Version NoÃ«l, Version interne..."
+                    className={inputClass}
+                  />
+                </div>
+              )}
+              <div className={nv.variant_type === 'autre' ? 'md:col-span-2' : ''}>
+                <label className={labelClass}>URL de la variante *</label>
+                <input
+                  type="url"
+                  value={nv.url}
+                  onChange={(e) => handleNewVariantChange(index, 'url', e.target.value)}
+                  placeholder="https://..."
+                  className={inputClass}
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          onClick={handleAddNewVariant}
+          className="text-gold hover:text-gold-strong text-sm flex items-center gap-1 mt-1 transition-colors"
+        >
+          <Plus size={16} /> Ajouter une variante
+        </button>
       </div>
 
       {/* ===== SECTION: Description & Statut ===== */}
@@ -914,7 +1140,7 @@ export default function ECardEdit() {
               onChange={(e) => handleInputChange('is_published', e.target.checked)}
               className="w-4 h-4 rounded border-gray-300 text-gold focus:ring-gold"
             />
-            <span className="text-sm text-gray-600">Publiée</span>
+            <span className="text-sm text-gray-600">PubliÃ©e</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -936,7 +1162,7 @@ export default function ECardEdit() {
           className="bg-gold hover:bg-gold-strong disabled:bg-gray-300 text-white px-8 py-2.5 rounded-lg flex items-center gap-2 transition-colors font-medium"
         >
           <Save size={20} />
-          {saving ? 'Enregistrement...' : isNew ? 'Créer' : 'Enregistrer'}
+          {saving ? 'Enregistrement...' : isNew ? 'CrÃ©er' : 'Enregistrer'}
         </button>
         <button
           onClick={() => navigate('/ecards')}
