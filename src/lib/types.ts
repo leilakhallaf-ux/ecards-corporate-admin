@@ -107,4 +107,7 @@ export interface DashboardStats {
   totalViews: number
   totalLikes: number
   newMessages: number
+  cardsWithScore: number
+  totalRatings: number
+  avgScore: number
 }
