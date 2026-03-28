@@ -63,7 +63,7 @@ export default function ECards() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Ãtes-vous sÃ»r de vouloir supprimer cette e-card ?')) return
+    if (!confirm('Ãtes-vous sûr de vouloir supprimer cette e-card ?')) return
     try {
       const { error: deleteError } = await supabase.from('e_cards').delete().eq('id', id)
       if (deleteError) throw deleteError
@@ -185,12 +185,12 @@ export default function ECards() {
         </div>
       )}
 
-      {/* Tabs: Toutes / Liens / VidÃ©os */}
+      {/* Tabs: Toutes / Liens / Vidéos */}
       <div className="mb-6 flex gap-0 border-b border-gray-300">
         {([
           { key: 'all', label: 'Toutes', icon: null, count: countAll },
           { key: 'link', label: 'Liens', icon: <Link2 className="w-4 h-4" />, count: countLiens },
-          { key: 'video', label: 'VidÃ©os', icon: <Video className="w-4 h-4" />, count: countVideos },
+          { key: 'video', label: 'Vidéos', icon: <Video className="w-4 h-4" />, count: countVideos },
         ] as const).map(tab => (
           <button
             key={tab.key}
@@ -221,7 +221,7 @@ export default function ECards() {
             <Search className="absolute left-3 top-3 text-gray-500" size={20} />
             <input
               type="text"
-              placeholder="Rechercher par nom, millÃ©sime..."
+              placeholder="Rechercher par nom, millésime..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-navy-800 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-gold"
@@ -233,8 +233,8 @@ export default function ECards() {
             className="px-4 py-2 bg-navy-800 border border-gray-300 rounded-lg text-gray-900 focus:border-gold"
           >
             <option value="all">Toutes</option>
-            <option value="published">PubliÃ©es</option>
-            <option value="unpublished">Non publiÃ©es</option>
+            <option value="published">Publiées</option>
+            <option value="unpublished">Non publiées</option>
           </select>
         </div>
 
@@ -248,21 +248,21 @@ export default function ECards() {
 
           <select value={filterSujet} onChange={(e) => setFilterSujet(e.target.value)}
             className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
-            <option value="all">MillÃ©sime: Tous</option>
+            <option value="all">Millésime: Tous</option>
             {uniqueSujets.map(v => <option key={v} value={v}>{v}</option>)}
           </select>
 
           <select value={filterStatut} onChange={(e) => setFilterStatut(e.target.value)}
             className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:border-gold">
             <option value="all">Statut: Tous</option>
-            <option value="published">PubliÃ©e</option>
+            <option value="published">Publiée</option>
             <option value="unpublished">Brouillon</option>
           </select>
 
           {hasActiveFilters && (
             <button onClick={resetFilters}
               className="px-3 py-1.5 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors">
-              RÃ©initialiser filtres
+              Réinitialiser filtres
             </button>
           )}
         </div>
@@ -272,7 +272,7 @@ export default function ECards() {
       <div className="bg-navy-800 rounded-lg border border-gray-200 overflow-hidden">
         {filteredEcards.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            Aucune e-card trouvÃ©e
+            Aucune e-card trouvée
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -289,7 +289,7 @@ export default function ECards() {
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('topic')}>
                     <div className="flex items-center gap-1">
-                      MillÃ©sime <SortIcon column="topic" />
+                      Millésime <SortIcon column="topic" />
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 select-none" onClick={() => handleSort('views')}>
@@ -347,7 +347,7 @@ export default function ECards() {
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${card.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
-                        {card.is_published ? 'PubliÃ©e' : 'Brouillon'}
+                        {card.is_published ? 'Publiée' : 'Brouillon'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-center">
